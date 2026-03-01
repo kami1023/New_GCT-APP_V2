@@ -1,0 +1,5 @@
+{
+  "name": "Ganesh Clean Tech Billing & Inventory",
+  "description": "Professional billing and inventory management system for Ganesh Clean Tech with SQLite database and high-res invoice generation.",
+  "requestFramePermissions": []
+}
