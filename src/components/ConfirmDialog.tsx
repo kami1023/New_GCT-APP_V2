@@ -32,7 +32,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   const containerClasses = isInline 
     ? "absolute inset-0 z-50 p-5 flex items-center justify-center animate-in fade-in duration-300"
     : isPopover
-    ? "absolute bottom-full right-0 mb-4 z-[100] w-80 animate-in slide-in-from-bottom-2 duration-300"
+    ? "absolute top-full right-0 mt-2 z-[100] w-80 animate-in slide-in-from-top-2 duration-300"
     : "fixed inset-0 z-[300] flex items-center justify-center p-6 animate-in fade-in duration-300";
 
   const panelClasses = isInline
@@ -52,7 +52,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       )}
       
       {isPopover && (
-        <div className="absolute -bottom-2 right-10 w-4 h-4 bg-black border-r border-b border-red-500/30 rotate-45 z-[-1]" />
+        <div className="absolute -top-2 right-10 w-4 h-4 bg-black border-l border-t border-red-500/30 rotate-45 z-[-1]" />
       )}
 
       <div className={panelClasses}>
