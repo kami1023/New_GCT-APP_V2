@@ -45,7 +45,7 @@
     "productName": "GCT App",
     "win": {
       "icon": "assets/icon.ico",
-      "target": "nsis"
+      "target": "portable"
     },
     "files": ["dist/**/*", "server.ts", "electron.js", "node_modules/**/*"]
   }
