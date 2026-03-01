@@ -52,7 +52,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       )}
       
       {isPopover && (
-        <div className="absolute -top-2 right-10 w-4 h-4 bg-black border-l border-t border-red-500/30 rotate-45 z-[-1]" />
+        <div className="absolute -top-[7px] right-10 w-4 h-4 bg-black border-l border-t border-red-500/30 rotate-45 z-[1]" />
       )}
 
       <div className={panelClasses}>
