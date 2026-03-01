@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Minus, Package, Trash2 } from 'lucide-react';
 import { Product } from '../types';
 import { formatCurrency } from '../utils';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface InventoryCardProps {
   product: Product;
@@ -13,6 +14,7 @@ interface InventoryCardProps {
 export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateStock, onUpdatePrice, onDelete }) => {
   const [localStock, setLocalStock] = useState(product.stock_level.toString());
   const [localPrice, setLocalPrice] = useState(product.price.toString());
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   useEffect(() => {
     setLocalStock(product.stock_level.toString());
@@ -32,11 +34,13 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
     onUpdateStock(product.id, -1, "Manual Deduction");
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm(`WARNING: Deleting ${product.id} will also remove it from all existing invoices and logs. This action cannot be undone. Are you sure?`)) {
-      onDelete(product.id);
-    }
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete(product.id);
   };
 
   const handleStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,19 +75,29 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
   };
 
   return (
-    <div className="glass-panel p-8 group hover:border-white/20 transition-all duration-500 h-full flex flex-col rounded-sm min-h-[420px]">
+    <div className="glass-panel p-8 group hover:border-white/20 transition-all duration-500 h-full flex flex-col rounded-sm min-h-[420px] relative">
       <div className="flex justify-between items-start mb-8">
         <div className="p-4 bg-white/5 rounded-sm border border-white/10 group-hover:scale-110 transition-transform duration-500">
           <Package className="w-8 h-8 text-sky-400" />
         </div>
         <button 
-          onClick={handleDelete}
+          onClick={handleDeleteClick}
           className="p-3 hover:bg-red-500/20 text-zinc-700 hover:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 opacity-0 group-hover:opacity-100"
           title="Delete Product"
         >
           <Trash2 className="w-5 h-5" />
         </button>
       </div>
+
+      <ConfirmDialog 
+        isOpen={isConfirmOpen}
+        title="Delete Product?"
+        message={`WARNING: Deleting ${product.id} will also remove it from all existing invoices and logs. This action cannot be undone.`}
+        confirmLabel="Delete Permanently"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setIsConfirmOpen(false)}
+        isInline={true}
+      />
       
       <div className="space-y-1 flex-1">
         <h3 className="text-white font-black text-2xl uppercase tracking-tighter">{product.id}</h3>

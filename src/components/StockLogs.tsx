@@ -3,6 +3,7 @@ import { Search, ArrowUpRight, ArrowDownLeft, History, Package, Calendar, Trash2
 import { format } from 'date-fns';
 import { Product } from '../types';
 import { cn } from '../utils';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface StockLog {
   id: number;
@@ -26,6 +27,19 @@ export const StockLogs: React.FC<StockLogsProps> = ({ products, onRefreshProduct
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [aiRecommendations, setAiRecommendations] = useState<Record<string, string>>({});
   const [isGeneratingAi, setIsGeneratingAi] = useState<Record<string, boolean>>({});
+  
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant?: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
 
   const fetchLogs = () => {
     setLoading(true);
@@ -106,47 +120,57 @@ export const StockLogs: React.FC<StockLogsProps> = ({ products, onRefreshProduct
       return;
     }
 
-    if (confirm(`Delete ${selectedIds.length} selected logs?`)) {
-      try {
-        const response = await fetch('/api/stock-logs/delete', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ids: selectedIds })
-        });
-        if (response.ok) {
-          fetchLogs();
-          setSelectedIds([]);
-          setIsSelectionMode(false);
-        } else {
-          const error = await response.json();
-          alert(error.error || 'Failed to delete logs');
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Delete Selected Logs?',
+      message: `Are you sure you want to delete ${selectedIds.length} selected stock movement logs? This action cannot be undone.`,
+      onConfirm: async () => {
+        try {
+          const response = await fetch('/api/stock-logs/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids: selectedIds })
+          });
+          if (response.ok) {
+            fetchLogs();
+            setSelectedIds([]);
+            setIsSelectionMode(false);
+          } else {
+            const error = await response.json();
+            alert(error.error || 'Failed to delete logs');
+          }
+        } catch (err) {
+          alert('Network error while deleting logs');
         }
-      } catch (err) {
-        alert('Network error while deleting logs');
       }
-    }
+    });
   };
 
   const handleDeleteAll = async () => {
-    if (confirm("CRITICAL: This will permanently delete ALL movement logs from the database. This cannot be undone. Proceed?")) {
-      try {
-        const response = await fetch('/api/stock-logs/delete', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ids: 'all' })
-        });
-        if (response.ok) {
-          fetchLogs();
-          setSelectedIds([]);
-          setIsSelectionMode(false);
-        } else {
-          const error = await response.json();
-          alert(error.error || 'Failed to delete all logs');
+    setConfirmConfig({
+      isOpen: true,
+      title: 'CRITICAL: Delete All Logs?',
+      message: "This will permanently delete ALL movement logs from the database. This action is irreversible and will wipe your entire stock history.",
+      onConfirm: async () => {
+        try {
+          const response = await fetch('/api/stock-logs/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids: 'all' })
+          });
+          if (response.ok) {
+            fetchLogs();
+            setSelectedIds([]);
+            setIsSelectionMode(false);
+          } else {
+            const error = await response.json();
+            alert(error.error || 'Failed to delete all logs');
+          }
+        } catch (err) {
+          alert('Network error while deleting all logs');
         }
-      } catch (err) {
-        alert('Network error while deleting all logs');
       }
-    }
+    });
   };
 
   const handleSelectAll = () => {
@@ -202,24 +226,46 @@ export const StockLogs: React.FC<StockLogsProps> = ({ products, onRefreshProduct
           </button>
           {isSelectionMode && (
             <>
-              <button 
-                onClick={handleClearLogs}
-                disabled={selectedIds.length === 0}
-                className={cn(
-                  "px-6 h-[52px] rounded-sm font-black uppercase tracking-widest text-xs flex items-center gap-2 transition-all",
-                  selectedIds.length > 0 ? "bg-red-500 text-white" : "bg-red-500/10 text-red-500/40 cursor-not-allowed"
-                )}
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete ({selectedIds.length})
-              </button>
-              <button 
-                onClick={handleDeleteAll}
-                className="px-6 h-[52px] rounded-sm font-black uppercase tracking-widest text-xs flex items-center gap-2 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white transition-all border border-red-500/30"
-              >
-                <AlertTriangle className="w-4 h-4" />
-                Delete All
-              </button>
+              <div className="relative">
+                <button 
+                  onClick={handleClearLogs}
+                  disabled={selectedIds.length === 0}
+                  className={cn(
+                    "px-6 h-[52px] rounded-sm font-black uppercase tracking-widest text-xs flex items-center gap-2 transition-all",
+                    selectedIds.length > 0 ? "bg-red-500 text-white" : "bg-red-500/10 text-red-500/40 cursor-not-allowed"
+                  )}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Delete ({selectedIds.length})
+                </button>
+                <ConfirmDialog 
+                  isOpen={confirmConfig.isOpen && confirmConfig.title.includes('Selected')}
+                  title={confirmConfig.title}
+                  message={confirmConfig.message}
+                  onConfirm={confirmConfig.onConfirm}
+                  onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+                  variant={confirmConfig.variant}
+                  isPopover={true}
+                />
+              </div>
+              <div className="relative">
+                <button 
+                  onClick={handleDeleteAll}
+                  className="px-6 h-[52px] rounded-sm font-black uppercase tracking-widest text-xs flex items-center gap-2 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white transition-all border border-red-500/30"
+                >
+                  <AlertTriangle className="w-4 h-4" />
+                  Delete All
+                </button>
+                <ConfirmDialog 
+                  isOpen={confirmConfig.isOpen && confirmConfig.title.includes('All')}
+                  title={confirmConfig.title}
+                  message={confirmConfig.message}
+                  onConfirm={confirmConfig.onConfirm}
+                  onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+                  variant={confirmConfig.variant}
+                  isPopover={true}
+                />
+              </div>
             </>
           )}
         </div>
@@ -274,6 +320,14 @@ export const StockLogs: React.FC<StockLogsProps> = ({ products, onRefreshProduct
       )}
 
       <div className="glass-panel overflow-hidden relative">
+        <ConfirmDialog 
+          isOpen={confirmConfig.isOpen && !confirmConfig.title.includes('All') && !confirmConfig.title.includes('Selected')}
+          title={confirmConfig.title}
+          message={confirmConfig.message}
+          onConfirm={confirmConfig.onConfirm}
+          onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+          variant={confirmConfig.variant}
+        />
         {isSelectionMode && (
           <div className="bg-white/[0.05] border-b border-white/5 px-8 py-4 flex justify-between items-center animate-in slide-in-from-top-2">
             <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Selection Mode Active</p>
@@ -374,25 +428,30 @@ export const StockLogs: React.FC<StockLogsProps> = ({ products, onRefreshProduct
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (confirm("Delete this log?")) {
-                        fetch('/api/stock-logs/delete', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ ids: [log.id] })
-                        })
-                        .then(async res => {
-                          if (res.ok) {
-                            fetchLogs();
-                          } else {
-                            const err = await res.json();
-                            alert(`Failed to delete log: ${err.error || 'Unknown error'}`);
-                          }
-                        })
-                        .catch(err => {
-                          console.error("Delete log error:", err);
-                          alert("Network error while deleting log.");
-                        });
-                      }
+                      setConfirmConfig({
+                        isOpen: true,
+                        title: 'Delete Log?',
+                        message: 'Are you sure you want to delete this specific movement log?',
+                        onConfirm: () => {
+                          fetch('/api/stock-logs/delete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ids: [log.id] })
+                          })
+                          .then(async res => {
+                            if (res.ok) {
+                              fetchLogs();
+                            } else {
+                              const err = await res.json();
+                              alert(`Failed to delete log: ${err.error || 'Unknown error'}`);
+                            }
+                          })
+                          .catch(err => {
+                            console.error("Delete log error:", err);
+                            alert("Network error while deleting log.");
+                          });
+                        }
+                      });
                     }}
                     className="p-2 text-zinc-600 hover:text-red-400 hover:bg-red-400/10 rounded-sm transition-all opacity-0 group-hover:opacity-100"
                   >
