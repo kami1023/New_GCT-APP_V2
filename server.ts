@@ -3,8 +3,18 @@ import { createServer as createViteServer } from "vite";
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
+import Groq from "groq-sdk";
 
 const db = new Database("ganesh_cleantech.db");
+
+// Lazy Groq initialization to prevent crash if key is missing
+let groq: Groq | null = null;
+const getGroq = () => {
+  if (!groq && process.env.GROQ_API_KEY) {
+    groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  }
+  return groq;
+};
 
 // Initialize Database
 db.exec(`
@@ -358,6 +368,25 @@ async function startServer() {
     });
     transaction(settings);
     res.json({ success: true });
+  });
+
+  // AI Proxy
+  app.post("/api/ai/recommendation", async (req, res) => {
+    const { prompt } = req.body;
+    const groqClient = getGroq();
+    if (!groqClient) {
+      return res.status(500).json({ error: "GROQ_API_KEY not configured in environment" });
+    }
+    try {
+      const chatCompletion = await groqClient.chat.completions.create({
+        messages: [{ role: 'user', content: prompt }],
+        model: 'llama-3.3-70b-versatile',
+      });
+      res.json({ text: chatCompletion.choices[0]?.message?.content });
+    } catch (error: any) {
+      console.error("[AI ERROR]", error);
+      res.status(500).json({ error: error.message });
+    }
   });
 
   // Vite middleware for development

@@ -3,7 +3,6 @@ import { Search, ArrowUpRight, ArrowDownLeft, History, Package, Calendar, Trash2
 import { format } from 'date-fns';
 import { Product } from '../types';
 import { cn } from '../utils';
-import { GoogleGenAI } from "@google/genai";
 
 interface StockLog {
   id: number;
@@ -47,8 +46,6 @@ export const StockLogs: React.FC<StockLogsProps> = ({ products, onRefreshProduct
     setIsGeneratingAi(prev => ({ ...prev, [product.id]: true }));
     
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-      
       // Get recent logs for this product to analyze trends
       const productLogs = logs
         .filter(l => l.product_id === product.id)
@@ -77,13 +74,21 @@ export const StockLogs: React.FC<StockLogsProps> = ({ products, onRefreshProduct
         - No filler text.
       `;
       
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
+      const response = await fetch('/api/ai/recommendation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
       });
       
-      setAiRecommendations(prev => ({ ...prev, [product.id]: response.text || "• Order 20 units\n• 3-day buffer" }));
-    } catch (error) {
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'AI request failed');
+      }
+
+      const data = await response.json();
+      setAiRecommendations(prev => ({ ...prev, [product.id]: data.text || "• Order 20 units\n• 3-day buffer" }));
+    } catch (error: any) {
+      console.error("AI Error:", error);
       setAiRecommendations(prev => ({ ...prev, [product.id]: `• Order 15 units\n• Safety buffer` }));
     } finally {
       setIsGeneratingAi(prev => ({ ...prev, [product.id]: false }));

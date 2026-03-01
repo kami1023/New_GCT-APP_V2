@@ -231,7 +231,7 @@ export default function App() {
                 </div>
                 <button 
                   onClick={() => setIsNewProductModalOpen(true)}
-                  className="px-8 h-[56px] glass-panel text-sky-400 text-xs font-black uppercase tracking-widest hover:bg-sky-500/10 flex items-center gap-2 transition-all"
+                  className="px-8 h-[56px] glass-panel text-sky-400 text-xs font-black uppercase tracking-widest hover:bg-sky-500/10 hover:border-sky-500/40 flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(56,189,248,0.05)] active:scale-95"
                 >
                   <PlusCircle className="w-5 h-5" /> New Product
                 </button>

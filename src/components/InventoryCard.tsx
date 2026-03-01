@@ -76,27 +76,13 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         <div className="p-4 bg-white/5 rounded-sm border border-white/10 group-hover:scale-110 transition-transform duration-500">
           <Package className="w-8 h-8 text-sky-400" />
         </div>
-        <div className="flex gap-3">
-          <button 
-            onClick={handleDelete}
-            className="p-3 hover:bg-red-500/20 text-zinc-600 hover:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30"
-            title="Delete Product"
-          >
-            <Trash2 className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={handleMinus}
-            className="p-3 hover:bg-red-500/20 text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30"
-          >
-            <Minus className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={handlePlus}
-            className="p-3 hover:bg-emerald-500/20 text-emerald-400 rounded-sm transition-all border border-white/5 hover:border-emerald-500/30"
-          >
-            <Plus className="w-5 h-5" />
-          </button>
-        </div>
+        <button 
+          onClick={handleDelete}
+          className="p-3 hover:bg-red-500/20 text-zinc-700 hover:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 opacity-0 group-hover:opacity-100"
+          title="Delete Product"
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
       </div>
       
       <div className="space-y-1 flex-1">
@@ -104,16 +90,34 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">{product.name}</p>
       </div>
 
-      <div className="flex items-baseline gap-3 my-6">
-        <input 
-          type="text"
-          className="bg-transparent text-6xl font-black text-white tracking-tighter w-32 outline-none border-none cursor-default focus:cursor-text"
-          value={localStock}
-          onChange={handleStockChange}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-        />
-        <span className="text-zinc-500 text-sm font-bold uppercase tracking-widest">Units</span>
+      <div className="flex items-center gap-6 my-8">
+        <div className="flex flex-col gap-2">
+          <button 
+            onClick={handlePlus}
+            className="p-2.5 hover:bg-emerald-500/20 text-emerald-400 rounded-sm transition-all border border-white/5 hover:border-emerald-500/30 bg-white/5"
+            title="Increase Stock"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={handleMinus}
+            className="p-2.5 hover:bg-red-500/20 text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 bg-white/5"
+            title="Decrease Stock"
+          >
+            <Minus className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="flex items-baseline gap-2">
+          <input 
+            type="text"
+            className="bg-transparent text-7xl font-black text-white tracking-tighter w-28 outline-none border-none cursor-default focus:cursor-text"
+            value={localStock}
+            onChange={handleStockChange}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+          />
+          <span className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">Units</span>
+        </div>
       </div>
       
       <div className="pt-6 border-t border-white/5 space-y-4">
