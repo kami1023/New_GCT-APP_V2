@@ -92,7 +92,11 @@ export default function App() {
       if (data.success) {
         fetchProducts();
       } else {
-        alert(data.error || 'Failed to delete product');
+        let errorMsg = data.error || 'Failed to delete product';
+        if (data.availableIds) {
+          errorMsg += `\n\nAvailable IDs in database: ${data.availableIds.join(', ')}`;
+        }
+        alert(errorMsg);
       }
     } catch (err: any) {
       console.error('Delete error:', err);

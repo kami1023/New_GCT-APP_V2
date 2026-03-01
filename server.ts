@@ -177,60 +177,79 @@ async function startServer() {
   app.delete("/api/products/:id", (req, res) => {
     const { id } = req.params;
     const targetId = id.trim();
-    console.log(`[DELETE REQUEST] Received ID: "${id}", Trimmed: "${targetId}"`);
+    console.log(`[DELETE REQUEST] Product ID: "${id}", Trimmed: "${targetId}"`);
     
     try {
-      // 1. Try exact match
+      // 1. Find the actual ID in the database
       let product = db.prepare("SELECT id FROM products WHERE id = ?").get(targetId) as { id: string } | undefined;
       
-      // 2. Try case-insensitive trimmed match
       if (!product) {
         console.log(`[DELETE] Exact match failed for "${targetId}", trying fuzzy...`);
         product = db.prepare("SELECT id FROM products WHERE LOWER(TRIM(id)) = LOWER(TRIM(?))").get(targetId) as { id: string } | undefined;
       }
       
-      // 3. Try LIKE match as a last resort
       if (!product) {
         console.log(`[DELETE] Fuzzy match failed, trying LIKE...`);
         product = db.prepare("SELECT id FROM products WHERE id LIKE ?").get(`%${targetId}%`) as { id: string } | undefined;
       }
       
       if (!product) {
-        console.log(`[DELETE] Product not found at all: "${targetId}"`);
         const all = db.prepare("SELECT id FROM products").all();
-        console.log(`[DELETE] Current IDs in DB:`, all.map((p: any) => `"${p.id}"`));
-        return res.status(404).json({ error: `Product "${targetId}" not found. Available IDs: ${all.map((p: any) => p.id).join(', ')}` });
+        console.log(`[DELETE] Product not found: "${targetId}". Available:`, all.map((p: any) => p.id));
+        return res.status(404).json({ 
+          error: `Product "${targetId}" not found in database.`,
+          availableIds: all.map((p: any) => p.id)
+        });
       }
 
       const actualId = product.id;
-      console.log(`[DELETE] Final ID to delete: "${actualId}"`);
+      console.log(`[DELETE] Found actual ID: "${actualId}". Proceeding with deletion...`);
 
-      const performDelete = db.transaction(() => {
-        // Try standard deletion first
-        const items = db.prepare("DELETE FROM invoice_items WHERE product_id = ?").run(actualId);
-        const logs = db.prepare("DELETE FROM stock_logs WHERE product_id = ?").run(actualId);
-        const prod = db.prepare("DELETE FROM products WHERE id = ?").run(actualId);
-        
-        return { items: items.changes, logs: logs.changes, product: prod.changes };
-      });
-
+      // Use a more aggressive deletion strategy
       let results;
       try {
-        results = performDelete();
-      } catch (transError: any) {
-        console.warn(`[DELETE] Transaction failed, trying PRAGMA fallback:`, transError);
-        // Fallback: Disable foreign keys and delete manually
+        // Set PRAGMA outside transaction
+        db.exec("PRAGMA foreign_keys = OFF");
+        
+        results = db.transaction(() => {
+          const items = db.prepare("DELETE FROM invoice_items WHERE product_id = ?").run(actualId);
+          const logs = db.prepare("DELETE FROM stock_logs WHERE product_id = ?").run(actualId);
+          const prod = db.prepare("DELETE FROM products WHERE id = ?").run(actualId);
+          
+          return { 
+            itemsDeleted: items.changes, 
+            logsDeleted: logs.changes, 
+            productDeleted: prod.changes 
+          };
+        })();
+        
+        db.exec("PRAGMA foreign_keys = ON");
+      } catch (err: any) {
+        console.error(`[DELETE TRANSACTION ERROR]`, err);
+        // Fallback: try one by one without transaction
         db.exec("PRAGMA foreign_keys = OFF");
         const items = db.prepare("DELETE FROM invoice_items WHERE product_id = ?").run(actualId);
         const logs = db.prepare("DELETE FROM stock_logs WHERE product_id = ?").run(actualId);
         const prod = db.prepare("DELETE FROM products WHERE id = ?").run(actualId);
         db.exec("PRAGMA foreign_keys = ON");
-        results = { items: items.changes, logs: logs.changes, product: prod.changes, fallback: true };
+        
+        results = { 
+          itemsDeleted: items.changes, 
+          logsDeleted: logs.changes, 
+          productDeleted: prod.changes,
+          fallbackUsed: true
+        };
       }
-      console.log(`[DELETE SUCCESS]`, results);
+
+      console.log(`[DELETE SUCCESS] Results for "${actualId}":`, results);
+      
+      if (results.productDeleted === 0) {
+        return res.status(500).json({ error: "Database reported 0 rows deleted for the product itself." });
+      }
+
       res.json({ success: true, details: results });
     } catch (error: any) {
-      console.error(`[DELETE ERROR]`, error);
+      console.error(`[DELETE FATAL ERROR]`, error);
       res.status(500).json({ error: `Server Error: ${error.message}` });
     }
   });
@@ -244,14 +263,21 @@ async function startServer() {
         const result = db.prepare("DELETE FROM stock_logs").run();
         changes = result.changes;
       } else if (Array.isArray(ids)) {
-        const placeholders = ids.map(() => "?").join(",");
-        const result = db.prepare(`DELETE FROM stock_logs WHERE id IN (${placeholders})`).run(...ids);
+        if (ids.length === 0) return res.json({ success: true, changes: 0 });
+        
+        // Ensure IDs are numbers
+        const numericIds = ids.map(id => Number(id)).filter(id => !isNaN(id));
+        if (numericIds.length === 0) return res.json({ success: true, changes: 0 });
+
+        const placeholders = numericIds.map(() => "?").join(",");
+        const result = db.prepare(`DELETE FROM stock_logs WHERE id IN (${placeholders})`).run(...numericIds);
         changes = result.changes;
       }
-      console.log(`[LOG DELETE] Success, removed ${changes} rows`);
+      
+      console.log(`[LOG DELETE SUCCESS] Deleted ${changes} logs.`);
       res.json({ success: true, changes });
     } catch (error: any) {
-      console.error(`[LOG DELETE] Error:`, error);
+      console.error(`[LOG DELETE ERROR]`, error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -342,7 +368,7 @@ async function startServer() {
     const logs = db.prepare(`
       SELECT l.*, p.name as product_name 
       FROM stock_logs l 
-      JOIN products p ON l.product_id = p.id 
+      LEFT JOIN products p ON l.product_id = p.id 
       ORDER BY l.timestamp DESC
     `).all();
     res.json(logs);

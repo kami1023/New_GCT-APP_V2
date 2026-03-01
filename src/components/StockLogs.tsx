@@ -379,8 +379,18 @@ export const StockLogs: React.FC<StockLogsProps> = ({ products, onRefreshProduct
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ ids: [log.id] })
-                        }).then(res => {
-                          if (res.ok) fetchLogs();
+                        })
+                        .then(async res => {
+                          if (res.ok) {
+                            fetchLogs();
+                          } else {
+                            const err = await res.json();
+                            alert(`Failed to delete log: ${err.error || 'Unknown error'}`);
+                          }
+                        })
+                        .catch(err => {
+                          console.error("Delete log error:", err);
+                          alert("Network error while deleting log.");
                         });
                       }
                     }}

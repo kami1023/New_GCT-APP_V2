@@ -27,22 +27,22 @@ export const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ invoice, purch
       style={{ fontFamily: "'Inter', sans-serif", boxSizing: 'border-box' }}
     >
       {/* Header */}
-      <div className="text-center mb-3">
-        <h1 className="text-xl font-bold tracking-[0.2em] mb-0.5">{settings?.company_name || 'GANESH CLEAN – TECH'}</h1>
-        <p className="text-[9px] mb-0.5">{settings?.company_address || 'Door No. 2 / 561, Plot A-7, 2nd Cross, Nandhavanam Phase III, Hosur — 635109'}</p>
+      <div className="text-center mb-6">
+        <h1 className="text-xl font-bold tracking-[0.2em] mb-1">{settings?.company_name || 'GANESH CLEAN – TECH'}</h1>
+        <p className="text-[9px] mb-1">{settings?.company_address || 'Door No. 2 / 561, Plot A-7, 2nd Cross, Nandhavanam Phase III, Hosur — 635109'}</p>
         <p className="text-[9px]">E-mail: {settings?.company_email || 'ganeshcleantech@gmail.com'}   Mobile: {settings?.company_mobile || '9782875319'}</p>
       </div>
 
-      <div className="text-center border-y border-black py-1 mb-2">
+      <div className="text-center border-y border-black py-1.5 mb-4">
         <h2 className="text-[11px] font-bold tracking-widest uppercase">Tax Invoice Cum Delivery Challan</h2>
       </div>
 
       {/* Info Grid */}
-      <div className="grid grid-cols-2 border-b border-black mb-0">
-        <div className="border-r border-black p-1.5 min-h-[80px]">
-          <p className="font-bold mb-0.5">To</p>
+      <div className="grid grid-cols-2 border-b border-black mb-4">
+        <div className="border-r border-black p-2 min-h-[100px]">
+          <p className="font-bold mb-1">To</p>
           {purchaser ? (
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               <p className="font-bold uppercase text-[11px]">{purchaser.name}</p>
               <p className="whitespace-pre-wrap text-[9px]">{purchaser.address}</p>
               {purchaser.gstin && <p className="text-[9px]">GSTIN: {purchaser.gstin}</p>}
@@ -54,23 +54,23 @@ export const InvoiceTemplate: React.FC<InvoiceTemplateProps> = ({ invoice, purch
           )}
         </div>
         <div className="divide-y divide-black text-[9px]">
-          <div className="grid grid-cols-2 p-0.5 px-1">
+          <div className="grid grid-cols-2 p-1 px-2">
             <span className="">Invoice Number:</span>
             <span className="font-bold">{invoice.invoice_no || '-'}</span>
           </div>
-          <div className="grid grid-cols-2 p-0.5 px-1">
+          <div className="grid grid-cols-2 p-1 px-2">
             <span className="">Dated:</span>
             <span className="font-bold">{invoice.date ? format(new Date(invoice.date), 'dd-MM-yyyy') : '-'}</span>
           </div>
-          <div className="grid grid-cols-2 p-0.5 px-1">
+          <div className="grid grid-cols-2 p-1 px-2">
             <span className="">Buyer Order Number:</span>
             <span className="font-bold">{invoice.buyer_order_no || '-'}</span>
           </div>
-          <div className="grid grid-cols-2 p-0.5 px-1">
+          <div className="grid grid-cols-2 p-1 px-2">
             <span className="">Delivery Terms:</span>
             <span className="font-bold">{invoice.delivery_terms || '-'}</span>
           </div>
-          <div className="grid grid-cols-2 p-0.5 px-1">
+          <div className="grid grid-cols-2 p-1 px-2">
             <span className="">Mode / Payment Terms:</span>
             <span className="font-bold">{invoice.payment_mode || '-'}</span>
           </div>

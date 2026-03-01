@@ -107,7 +107,7 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
             <Minus className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-1">
           <input 
             type="text"
             className="bg-transparent text-7xl font-black text-white tracking-tighter w-28 outline-none border-none cursor-default focus:cursor-text"
@@ -116,7 +116,7 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
           />
-          <span className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em]">Units</span>
+          <span className="text-zinc-500 text-[8px] font-black uppercase tracking-[0.2em] -ml-2">Units</span>
         </div>
       </div>
       
