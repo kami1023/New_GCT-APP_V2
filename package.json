@@ -1,5 +1,5 @@
 {
-  "name": "GCT-App",
+  "name": "react-example",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,9 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit",
-    "electron": "electron .",
-    "dist": "electron-builder --win"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
@@ -38,15 +36,5 @@
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
-  },
-  "main": "electron.js",
-  "build": {
-    "appId": "com.ganesh.gct",
-    "productName": "GCT App",
-    "win": {
-      "icon": "assets/icon.ico",
-      "target": "portable"
-    },
-    "files": ["dist/**/*", "server.ts", "electron.js", "node_modules/**/*"]
   }
 }
