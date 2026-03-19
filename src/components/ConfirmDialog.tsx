@@ -13,6 +13,7 @@ interface ConfirmDialogProps {
   variant?: 'danger' | 'warning' | 'info';
   isInline?: boolean;
   isPopover?: boolean;
+  position?: 'top' | 'bottom';
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -25,14 +26,18 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onCancel,
   variant = 'danger',
   isInline = false,
-  isPopover = false
+  isPopover = false,
+  position = 'top'
 }) => {
   if (!isOpen) return null;
 
   const containerClasses = isInline 
     ? "absolute inset-0 z-50 p-5 flex items-center justify-center animate-in fade-in duration-300"
     : isPopover
-    ? "absolute bottom-full right-0 mb-4 z-[100] w-80 animate-in slide-in-from-bottom-2 duration-300"
+    ? cn(
+        "absolute right-0 z-[100] w-80 animate-in slide-in-from-bottom-2 duration-300",
+        position === 'top' ? "bottom-full mb-4" : "top-full mt-4"
+      )
     : "fixed inset-0 z-[300] flex items-center justify-center p-6 animate-in fade-in duration-300";
 
   const panelClasses = isInline
@@ -52,7 +57,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       )}
       
       {isPopover && (
-        <div className="absolute -bottom-2 right-10 w-4 h-4 bg-black border-r border-b border-red-500/30 rotate-45 z-[-1]" />
+        <div className={cn(
+          "absolute right-10 w-4 h-4 bg-black border-red-500/30 rotate-45 z-[-1]",
+          position === 'top' ? "-bottom-2 border-r border-b" : "-top-2 border-l border-t"
+        )} />
       )}
 
       <div className={panelClasses}>

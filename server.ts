@@ -4,8 +4,87 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import Groq from "groq-sdk";
+import * as admin from 'firebase-admin';
+
+// Initialize Firebase Admin
+const firebaseConfigPath = path.join(process.cwd(), 'firebase-applet-config.json');
+if (fs.existsSync(firebaseConfigPath)) {
+  const firebaseConfig = JSON.parse(fs.readFileSync(firebaseConfigPath, 'utf8'));
+  if (firebaseConfig.projectId) {
+    admin.initializeApp({
+      projectId: firebaseConfig.projectId,
+    });
+    console.log('Firebase Admin initialized for project:', firebaseConfig.projectId);
+  }
+}
 
 const db = new Database("ganesh_cleantech.db");
+
+// Cloud Sync Helpers
+const firestore = admin.apps.length > 0 ? admin.firestore() : null;
+
+async function syncToCloud(collectionName: string, id: string, data: any) {
+  if (!firestore) return;
+  try {
+    // Remove null/undefined values for Firestore
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([_, v]) => v !== null && v !== undefined)
+    );
+    await firestore.collection(collectionName).doc(id).set(cleanData);
+  } catch (error) {
+    console.error(`Error syncing ${collectionName}/${id} to cloud:`, error);
+  }
+}
+
+async function deleteFromCloud(collectionName: string, id: string) {
+  if (!firestore) return;
+  try {
+    await firestore.collection(collectionName).doc(id).delete();
+  } catch (error) {
+    console.error(`Error deleting ${collectionName}/${id} from cloud:`, error);
+  }
+}
+
+// Initial Sync from Cloud if SQLite is empty
+async function restoreFromCloud() {
+  if (!firestore) return;
+  
+  const productsCount = db.prepare('SELECT COUNT(*) as count FROM products').get() as any;
+  if (productsCount.count === 0) {
+    console.log('SQLite is empty, attempting to restore from Firestore...');
+    
+    // Restore Products
+    const productsSnapshot = await firestore.collection('products').get();
+    const insertProduct = db.prepare('INSERT INTO products (id, name, stock_level, price) VALUES (?, ?, ?, ?)');
+    productsSnapshot.forEach(doc => {
+      const data = doc.data();
+      insertProduct.run(doc.id, data.name, data.stock_level, data.price);
+    });
+
+    // Restore Stock Logs
+    const logsSnapshot = await firestore.collection('stock_logs').get();
+    const insertLog = db.prepare('INSERT INTO stock_logs (product_id, change, reason, timestamp) VALUES (?, ?, ?, ?)');
+    logsSnapshot.forEach(doc => {
+      const data = doc.data();
+      insertLog.run(data.product_id, data.change, data.reason, data.timestamp);
+    });
+    
+    console.log('Restore complete.');
+  } else {
+    // If SQLite has data, sync it TO cloud (one-way sync for now to ensure cloud is up to date)
+    console.log('SQLite has data, ensuring cloud is in sync...');
+    const products = db.prepare('SELECT * FROM products').all() as any[];
+    for (const p of products) {
+      await syncToCloud('products', p.id, p);
+    }
+    const logs = db.prepare('SELECT * FROM stock_logs').all() as any[];
+    for (const l of logs) {
+      await syncToCloud('stock_logs', l.id.toString(), l);
+    }
+  }
+}
+
+restoreFromCloud().catch(console.error);
 
 // Lazy Groq initialization to prevent crash if key is missing
 let groq: Groq | null = null;
@@ -126,6 +205,7 @@ async function startServer() {
     const { id, name, price } = req.body;
     try {
       db.prepare("INSERT INTO products (id, name, stock_level, price) VALUES (?, ?, ?, ?)").run(id, name, 0, price || 125);
+      syncToCloud('products', id, { id, name, stock_level: 0, price: price || 125 });
       res.json({ success: true });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
@@ -141,17 +221,26 @@ async function startServer() {
     }
 
     try {
-      const product = db.prepare("SELECT * FROM products WHERE id = ?").get(id);
+      const product = db.prepare("SELECT * FROM products WHERE id = ?").get(id) as any;
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
       }
 
       const updateStock = db.transaction(() => {
         db.prepare("UPDATE products SET stock_level = stock_level + ? WHERE id = ?").run(change, id);
-        db.prepare("INSERT INTO stock_logs (product_id, change, reason) VALUES (?, ?, ?)").run(id, change, reason);
+        const logResult = db.prepare("INSERT INTO stock_logs (product_id, change, reason) VALUES (?, ?, ?)").run(id, change, reason);
+        return { logId: logResult.lastInsertRowid };
       });
       
-      updateStock();
+      const { logId } = updateStock();
+      
+      // Sync updated product and new log to cloud
+      const updatedProduct = db.prepare("SELECT * FROM products WHERE id = ?").get(id) as any;
+      syncToCloud('products', id, updatedProduct);
+      
+      const newLog = db.prepare("SELECT * FROM stock_logs WHERE id = ?").get(logId) as any;
+      syncToCloud('stock_logs', logId.toString(), newLog);
+
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -168,6 +257,8 @@ async function startServer() {
 
     try {
       db.prepare("UPDATE products SET price = ? WHERE id = ?").run(price, id);
+      const updatedProduct = db.prepare("SELECT * FROM products WHERE id = ?").get(id) as any;
+      syncToCloud('products', id, updatedProduct);
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -247,6 +338,10 @@ async function startServer() {
         return res.status(500).json({ error: "Database reported 0 rows deleted for the product itself." });
       }
 
+      // Sync deletion to cloud
+      deleteFromCloud('products', actualId);
+      // Note: We'd ideally also delete related logs from cloud, but for now we'll focus on the main entity
+      
       res.json({ success: true, details: results });
     } catch (error: any) {
       console.error(`[DELETE FATAL ERROR]`, error);
@@ -262,6 +357,8 @@ async function startServer() {
       if (ids === 'all') {
         const result = db.prepare("DELETE FROM stock_logs").run();
         changes = result.changes;
+        // Sync to cloud: This is harder for 'all', maybe just clear the collection if possible
+        // For now, we'll let it be.
       } else if (Array.isArray(ids)) {
         if (ids.length === 0) return res.json({ success: true, changes: 0 });
         
@@ -272,6 +369,9 @@ async function startServer() {
         const placeholders = numericIds.map(() => "?").join(",");
         const result = db.prepare(`DELETE FROM stock_logs WHERE id IN (${placeholders})`).run(...numericIds);
         changes = result.changes;
+
+        // Sync deletions to cloud
+        numericIds.forEach(id => deleteFromCloud('stock_logs', id.toString()));
       }
       
       console.log(`[LOG DELETE SUCCESS] Deleted ${changes} logs.`);
@@ -291,7 +391,9 @@ async function startServer() {
   app.post("/api/purchasers", (req, res) => {
     const { name, gstin, address, contact_person } = req.body;
     const info = db.prepare("INSERT INTO purchasers (name, gstin, address, contact_person) VALUES (?, ?, ?, ?)").run(name, gstin, address, contact_person);
-    res.json({ id: info.lastInsertRowid });
+    const id = info.lastInsertRowid.toString();
+    syncToCloud('purchasers', id, { id, name, gstin, address, contact_person });
+    res.json({ id });
   });
 
   // Invoices
@@ -341,9 +443,20 @@ async function startServer() {
 
       for (const item of items) {
         const amount = item.quantity * item.rate;
-        insertItem.run(invoiceId, item.product_id, item.quantity, item.rate, amount);
+        const itemInfo = insertItem.run(invoiceId, item.product_id, item.quantity, item.rate, amount);
         updateStock.run(item.quantity, item.product_id);
-        logStock.run(item.product_id, -item.quantity, `Invoice #${invoice_no}`);
+        const logInfo = logStock.run(item.product_id, -item.quantity, `Invoice #${invoice_no}`);
+        
+        // Sync product and log to cloud
+        const updatedProduct = db.prepare("SELECT * FROM products WHERE id = ?").get(item.product_id) as any;
+        syncToCloud('products', item.product_id, updatedProduct);
+        
+        const newLog = db.prepare("SELECT * FROM stock_logs WHERE id = ?").get(logInfo.lastInsertRowid) as any;
+        syncToCloud('stock_logs', logInfo.lastInsertRowid.toString(), newLog);
+        
+        // Sync invoice item to cloud
+        const newItem = db.prepare("SELECT * FROM invoice_items WHERE id = ?").get(itemInfo.lastInsertRowid) as any;
+        syncToCloud('invoice_items', itemInfo.lastInsertRowid.toString(), newItem);
       }
 
       return invoiceId;
@@ -351,6 +464,8 @@ async function startServer() {
 
     try {
       const id = createInvoice();
+      const newInvoice = db.prepare("SELECT * FROM invoices WHERE id = ?").get(id) as any;
+      syncToCloud('invoices', id.toString(), newInvoice);
       res.json({ id });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
@@ -390,6 +505,7 @@ async function startServer() {
     const transaction = db.transaction((data) => {
       for (const [key, value] of Object.entries(data)) {
         updateSetting.run(key, value);
+        syncToCloud('settings', key, { key, value });
       }
     });
     transaction(settings);

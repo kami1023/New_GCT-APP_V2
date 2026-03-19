@@ -1,0 +1,92 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Inventory product details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Product ID (e.g. MK1)" },
+        "name": { "type": "string", "description": "Product name" },
+        "stock_level": { "type": "integer", "description": "Current stock level" },
+        "price": { "type": "number", "description": "Unit price" }
+      },
+      "required": ["id", "name", "stock_level", "price"]
+    },
+    "Purchaser": {
+      "title": "Purchaser",
+      "description": "Client or purchaser details",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "gstin": { "type": "string" },
+        "address": { "type": "string" },
+        "contact_person": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "Invoice": {
+      "title": "Invoice",
+      "description": "Sales invoice record",
+      "type": "object",
+      "properties": {
+        "invoice_no": { "type": "string" },
+        "date": { "type": "string" },
+        "purchaser_id": { "type": "string" },
+        "subtotal": { "type": "number" },
+        "sgst": { "type": "number" },
+        "cgst": { "type": "number" },
+        "grand_total": { "type": "number" },
+        "payment_mode": { "type": "string" },
+        "dispatched_through": { "type": "string" },
+        "buyer_order_no": { "type": "string" },
+        "delivery_terms": { "type": "string" },
+        "status": { "type": "string" },
+        "amount_paid": { "type": "number" }
+      },
+      "required": ["invoice_no", "date", "grand_total"]
+    },
+    "InvoiceItem": {
+      "title": "InvoiceItem",
+      "description": "Individual item within an invoice",
+      "type": "object",
+      "properties": {
+        "invoice_id": { "type": "string" },
+        "product_id": { "type": "string" },
+        "quantity": { "type": "integer" },
+        "rate": { "type": "number" },
+        "amount": { "type": "number" }
+      },
+      "required": ["invoice_id", "product_id", "quantity", "rate", "amount"]
+    },
+    "StockLog": {
+      "title": "StockLog",
+      "description": "Record of stock level changes",
+      "type": "object",
+      "properties": {
+        "product_id": { "type": "string" },
+        "change": { "type": "integer" },
+        "reason": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["product_id", "change", "reason", "timestamp"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "Application settings",
+      "type": "object",
+      "properties": {
+        "key": { "type": "string" },
+        "value": { "type": "string" }
+      },
+      "required": ["key", "value"]
+    }
+  },
+  "firestore": {
+    "products": { "schema": "Product", "description": "Collection of products" },
+    "purchasers": { "schema": "Purchaser", "description": "Collection of purchasers" },
+    "invoices": { "schema": "Invoice", "description": "Collection of invoices" },
+    "invoice_items": { "schema": "InvoiceItem", "description": "Collection of invoice items" },
+    "stock_logs": { "schema": "StockLog", "description": "Collection of stock logs" },
+    "settings": { "schema": "Setting", "description": "Collection of settings" }
+  }
+}

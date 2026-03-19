@@ -246,6 +246,7 @@ export const StockLogs: React.FC<StockLogsProps> = ({ products, onRefreshProduct
                   onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
                   variant={confirmConfig.variant}
                   isPopover={true}
+                  position="bottom"
                 />
               </div>
               <div className="relative">
@@ -264,6 +265,7 @@ export const StockLogs: React.FC<StockLogsProps> = ({ products, onRefreshProduct
                   onCancel={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
                   variant={confirmConfig.variant}
                   isPopover={true}
+                  position="bottom"
                 />
               </div>
             </>
