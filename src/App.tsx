@@ -208,7 +208,8 @@ export default function App() {
                 <input 
                   type="text"
                   placeholder="Search products..."
-                  className="glass-input w-full pl-10 text-sm h-[56px]"
+                  aria-label="Search products"
+                  className="glass-input w-full pl-10 text-sm h-[56px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50"
                   onChange={(e) => {
                     const term = e.target.value.toLowerCase();
                     const cards = document.querySelectorAll('.inventory-card-container');
@@ -279,8 +280,9 @@ function TabButton({ active, onClick, icon, label }: { active: boolean, onClick:
   return (
     <button
       onClick={onClick}
+      aria-current={active ? 'page' : undefined}
       className={cn(
-        "flex items-center gap-2 px-5 py-2.5 rounded-sm text-xs font-bold uppercase tracking-widest transition-all duration-300",
+        "flex items-center gap-2 px-5 py-2.5 rounded-sm text-xs font-bold uppercase tracking-widest transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
         active 
           ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)]" 
           : "text-zinc-500 hover:text-zinc-200 hover:bg-white/5"
