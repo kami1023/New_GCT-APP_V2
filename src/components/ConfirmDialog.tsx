@@ -67,7 +67,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         {!isInline && !isPopover && (
           <button 
             onClick={onCancel}
-            className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors"
+            className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded-sm"
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
@@ -100,8 +101,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <div className={cn("flex gap-3 w-full", isInline || isPopover ? "flex-col" : "flex-row")}>
             <button 
               onClick={onCancel}
+              autoFocus
               className={cn(
-                "glass-card font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-widest text-[10px]",
+                "glass-card font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-widest text-[10px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20",
                 isInline || isPopover ? "py-2.5 order-2" : "flex-1 py-4"
               )}
             >
