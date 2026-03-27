@@ -31,7 +31,11 @@ export const NewProductModal: React.FC<NewProductModalProps> = ({ isOpen, onClos
       <div className="glass-panel w-full max-w-md p-10 relative animate-in zoom-in-95 duration-300">
         <div className="flex justify-between items-center mb-8">
           <h3 className="text-2xl font-black text-white tracking-tight">New Product</h3>
-          <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
+          <button
+            onClick={onClose}
+            className="text-zinc-500 hover:text-white transition-colors"
+            aria-label="Close modal"
+          >
             <X className="w-6 h-6" />
           </button>
         </div>

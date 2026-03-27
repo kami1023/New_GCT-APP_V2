@@ -211,6 +211,7 @@ export const StockLogs: React.FC<StockLogsProps> = ({ products, onRefreshProduct
             onClick={fetchLogs}
             className="p-4 glass-panel text-zinc-400 hover:text-white transition-all"
             title="Refresh Logs"
+            aria-label="Refresh logs"
           >
             <RefreshCcw className={cn("w-5 h-5", loading && "animate-spin")} />
           </button>
