@@ -199,13 +199,31 @@ export const BillingForm: React.FC<BillingFormProps> = ({ settings }) => {
               <p className="text-zinc-500 text-xs">Ready for export</p>
             </div>
             <div className="flex gap-2">
-              <button onClick={handleDownload} className="p-2 glass-card text-emerald-400 hover:bg-emerald-500/10"><Download className="w-4 h-4" /></button>
-              <button onClick={handlePrint} className="p-2 glass-card text-emerald-400 hover:bg-emerald-500/10"><Eye className="w-4 h-4" /></button>
-              <button onClick={() => {
-                setLastGeneratedInvoice(null);
-                setItems([]);
-                setSelectedPurchaser(null);
-              }} className="p-2 glass-card text-zinc-500"><X className="w-4 h-4" /></button>
+              <button
+                onClick={handleDownload}
+                className="p-2 glass-card text-emerald-400 hover:bg-emerald-500/10"
+                aria-label="Download invoice"
+              >
+                <Download className="w-4 h-4" />
+              </button>
+              <button
+                onClick={handlePrint}
+                className="p-2 glass-card text-emerald-400 hover:bg-emerald-500/10"
+                aria-label="Preview and print invoice"
+              >
+                <Eye className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => {
+                  setLastGeneratedInvoice(null);
+                  setItems([]);
+                  setSelectedPurchaser(null);
+                }}
+                className="p-2 glass-card text-zinc-500"
+                aria-label="Clear success message"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </div>
         )}
@@ -366,6 +384,7 @@ export const BillingForm: React.FC<BillingFormProps> = ({ settings }) => {
                 <button 
                   onClick={() => handleRemoveItem(idx)}
                   className="p-2.5 text-zinc-600 hover:text-red-400 hover:bg-red-400/10 rounded-sm transition-all"
+                  aria-label="Remove item"
                 >
                   <Trash2 className="w-4.5 h-4.5" />
                 </button>
