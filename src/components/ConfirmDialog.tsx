@@ -68,6 +68,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <button 
             onClick={onCancel}
             className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors"
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
@@ -104,6 +105,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                 "glass-card font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-widest text-[10px]",
                 isInline || isPopover ? "py-2.5 order-2" : "flex-1 py-4"
               )}
+              autoFocus
             >
               {cancelLabel}
             </button>
