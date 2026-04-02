@@ -100,6 +100,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <div className={cn("flex gap-3 w-full", isInline || isPopover ? "flex-col" : "flex-row")}>
             <button 
               onClick={onCancel}
+              autoFocus
               className={cn(
                 "glass-card font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-widest text-[10px]",
                 isInline || isPopover ? "py-2.5 order-2" : "flex-1 py-4"
