@@ -41,7 +41,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     : "fixed inset-0 z-[300] flex items-center justify-center p-6 animate-in fade-in duration-300";
 
   const panelClasses = isInline
-    ? "glass-panel w-full h-full p-6 relative animate-in zoom-in-95 duration-300 border-white/10 flex flex-col items-center justify-center overflow-hidden"
+    ? "glass-panel bg-zinc-900 w-full h-full p-6 relative animate-in zoom-in-95 duration-300 border-white/10 flex flex-col items-center justify-center overflow-hidden"
     : isPopover
     ? "glass-panel w-full p-8 relative animate-in zoom-in-95 duration-300 border-red-500/30 bg-black/95 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
     : "glass-panel w-full max-w-md p-10 relative animate-in zoom-in-95 duration-300 border-white/10";
@@ -67,6 +67,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         {!isInline && !isPopover && (
           <button 
             onClick={onCancel}
+            aria-label="Close dialog"
             className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
@@ -100,6 +101,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <div className={cn("flex gap-3 w-full", isInline || isPopover ? "flex-col" : "flex-row")}>
             <button 
               onClick={onCancel}
+              autoFocus
               className={cn(
                 "glass-card font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-widest text-[10px]",
                 isInline || isPopover ? "py-2.5 order-2" : "flex-1 py-4"
