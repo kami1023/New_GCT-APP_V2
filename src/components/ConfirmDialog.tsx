@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId, useEffect } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 import { cn } from '../utils';
 
@@ -40,6 +40,18 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       )
     : "fixed inset-0 z-[300] flex items-center justify-center p-6 animate-in fade-in duration-300";
 
+  const titleId = useId();
+  const descriptionId = useId();
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCancel();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onCancel]);
+
   const panelClasses = isInline
     ? "glass-panel w-full h-full p-6 relative animate-in zoom-in-95 duration-300 border-white/10 flex flex-col items-center justify-center overflow-hidden"
     : isPopover
@@ -47,7 +59,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     : "glass-panel w-full max-w-md p-10 relative animate-in zoom-in-95 duration-300 border-white/10";
 
   return (
-    <div className={containerClasses}>
+    <div className={containerClasses} role="alertdialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId}>
       {!isInline && !isPopover && (
         <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onCancel} />
       )}
@@ -84,24 +96,31 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             <AlertTriangle className={isInline || isPopover ? "w-5 h-5" : "w-8 h-8"} />
           </div>
 
-          <h3 className={cn(
-            isInline || isPopover ? "text-lg mb-2" : "text-2xl mb-3",
-            "font-black text-white uppercase tracking-tighter"
-          )}>
+          <h3
+            id={titleId}
+            className={cn(
+              isInline || isPopover ? "text-lg mb-2" : "text-2xl mb-3",
+              "font-black text-white uppercase tracking-tighter"
+            )}
+          >
             {title}
           </h3>
-          <p className={cn(
-            isInline || isPopover ? "text-[10px] mb-6" : "text-sm mb-10",
-            "text-zinc-400 leading-relaxed"
-          )}>
+          <p
+            id={descriptionId}
+            className={cn(
+              isInline || isPopover ? "text-[10px] mb-6" : "text-sm mb-10",
+              "text-zinc-400 leading-relaxed"
+            )}
+          >
             {message}
           </p>
 
           <div className={cn("flex gap-3 w-full", isInline || isPopover ? "flex-col" : "flex-row")}>
             <button 
               onClick={onCancel}
+              autoFocus
               className={cn(
-                "glass-card font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-widest text-[10px]",
+                "glass-card font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-widest text-[10px] focus-visible:ring-2 ring-sky-500/50 outline-none",
                 isInline || isPopover ? "py-2.5 order-2" : "flex-1 py-4"
               )}
             >
@@ -113,11 +132,11 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                 onCancel();
               }}
               className={cn(
-                "rounded-sm font-black uppercase tracking-widest text-[10px] transition-all hover:scale-[1.02] active:scale-[0.98]",
+                "rounded-sm font-black uppercase tracking-widest text-[10px] transition-all hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-2 outline-none",
                 isInline || isPopover ? "py-3 order-1" : "flex-1 py-4",
-                variant === 'danger' ? "bg-red-500 text-white hover:bg-red-600 shadow-[0_10px_20px_rgba(239,68,68,0.2)]" :
-                variant === 'warning' ? "bg-amber-500 text-black hover:bg-amber-600" :
-                "bg-white text-black hover:bg-zinc-200"
+                variant === 'danger' ? "bg-red-500 text-white hover:bg-red-600 shadow-[0_10px_20px_rgba(239,68,68,0.2)] ring-red-500/50" :
+                variant === 'warning' ? "bg-amber-500 text-black hover:bg-amber-600 ring-amber-500/50" :
+                "bg-white text-black hover:bg-zinc-200 ring-white/50"
               )}
             >
               {confirmLabel}
