@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useId } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 import { cn } from '../utils';
 
@@ -29,6 +29,22 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   isPopover = false,
   position = 'top'
 }) => {
+  const titleId = useId();
+  const descriptionId = useId();
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onCancel();
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onCancel]);
+
   if (!isOpen) return null;
 
   const containerClasses = isInline 
@@ -47,7 +63,13 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     : "glass-panel w-full max-w-md p-10 relative animate-in zoom-in-95 duration-300 border-white/10";
 
   return (
-    <div className={containerClasses}>
+    <div
+      className={containerClasses}
+      role={isInline || isPopover ? undefined : "alertdialog"}
+      aria-modal={isInline || isPopover ? undefined : "true"}
+      aria-labelledby={isInline || isPopover ? undefined : titleId}
+      aria-describedby={isInline || isPopover ? undefined : descriptionId}
+    >
       {!isInline && !isPopover && (
         <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onCancel} />
       )}
@@ -68,6 +90,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <button 
             onClick={onCancel}
             className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors"
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
@@ -84,22 +107,29 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             <AlertTriangle className={isInline || isPopover ? "w-5 h-5" : "w-8 h-8"} />
           </div>
 
-          <h3 className={cn(
-            isInline || isPopover ? "text-lg mb-2" : "text-2xl mb-3",
-            "font-black text-white uppercase tracking-tighter"
-          )}>
+          <h3
+            id={titleId}
+            className={cn(
+              isInline || isPopover ? "text-lg mb-2" : "text-2xl mb-3",
+              "font-black text-white uppercase tracking-tighter"
+            )}
+          >
             {title}
           </h3>
-          <p className={cn(
-            isInline || isPopover ? "text-[10px] mb-6" : "text-sm mb-10",
-            "text-zinc-400 leading-relaxed"
-          )}>
+          <p
+            id={descriptionId}
+            className={cn(
+              isInline || isPopover ? "text-[10px] mb-6" : "text-sm mb-10",
+              "text-zinc-400 leading-relaxed"
+            )}
+          >
             {message}
           </p>
 
           <div className={cn("flex gap-3 w-full", isInline || isPopover ? "flex-col" : "flex-row")}>
             <button 
               onClick={onCancel}
+              autoFocus
               className={cn(
                 "glass-card font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-widest text-[10px]",
                 isInline || isPopover ? "py-2.5 order-2" : "flex-1 py-4"
