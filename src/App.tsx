@@ -13,6 +13,7 @@ import { GoogleGenAI } from "@google/genai";
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'billing' | 'logs' | 'stock-logs' | 'settings'>('dashboard');
   const [products, setProducts] = useState<Product[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
 
@@ -208,20 +209,10 @@ export default function App() {
                 <input 
                   type="text"
                   placeholder="Search products..."
+                  aria-label="Search products"
                   className="glass-input w-full pl-10 text-sm h-[56px]"
-                  onChange={(e) => {
-                    const term = e.target.value.toLowerCase();
-                    const cards = document.querySelectorAll('.inventory-card-container');
-                    cards.forEach((card: any) => {
-                      const id = card.getAttribute('data-id')?.toLowerCase() || '';
-                      const name = card.getAttribute('data-name')?.toLowerCase() || '';
-                      if (id.includes(term) || name.includes(term)) {
-                        card.style.display = 'block';
-                      } else {
-                        card.style.display = 'none';
-                      }
-                    });
-                  }}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
               </div>
@@ -248,18 +239,45 @@ export default function App() {
               onAdd={handleAddProduct} 
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-              {products.map(product => (
-                <div key={product.id} className="inventory-card-container h-full flex flex-col gap-4" data-id={product.id} data-name={product.name}>
-                  <InventoryCard 
-                    product={product} 
-                    onUpdateStock={handleUpdateStock}
-                    onUpdatePrice={handleUpdatePrice}
-                    onDelete={handleDeleteProduct}
-                  />
+            {(() => {
+              const filteredProducts = products.filter(p =>
+                p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                p.name.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+
+              if (filteredProducts.length === 0 && searchQuery) {
+                return (
+                  <div className="flex flex-col items-center justify-center py-20 px-4 glass-panel border-dashed border-white/10 animate-in fade-in zoom-in-95 duration-500">
+                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
+                      <Search className="w-10 h-10 text-zinc-600" />
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">No products found</h3>
+                    <p className="text-zinc-500 text-sm mb-8 text-center max-w-xs">We couldn't find any products matching "{searchQuery}"</p>
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="px-8 py-3 glass-card text-sky-400 text-[10px] font-black uppercase tracking-widest hover:bg-sky-500/10 transition-all active:scale-95"
+                    >
+                      Clear Search
+                    </button>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                  {filteredProducts.map(product => (
+                    <div key={product.id} className="inventory-card-container h-full flex flex-col gap-4">
+                      <InventoryCard
+                        product={product}
+                        onUpdateStock={handleUpdateStock}
+                        onUpdatePrice={handleUpdatePrice}
+                        onDelete={handleDeleteProduct}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </div>
         )}
 
