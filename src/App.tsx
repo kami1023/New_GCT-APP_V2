@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, ReceiptText, History, PlusCircle, Search, Settings as SettingsIcon, PackageSearch, AlertTriangle, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useId, useRef } from 'react';
+import { LayoutDashboard, ReceiptText, History, PlusCircle, Search, Settings as SettingsIcon, PackageSearch, AlertTriangle, Sparkles, XCircle } from 'lucide-react';
 import { Product } from './types';
 import { InventoryCard } from './components/InventoryCard';
 import { BillingForm } from './components/BillingForm';
@@ -11,10 +11,13 @@ import { cn } from './utils';
 import { GoogleGenAI } from "@google/genai";
 
 export default function App() {
+  const searchInputId = useId();
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'billing' | 'logs' | 'stock-logs' | 'settings'>('dashboard');
   const [products, setProducts] = useState<Product[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchProducts = () => {
     fetch('/api/products')
@@ -31,6 +34,18 @@ export default function App() {
   useEffect(() => {
     fetchProducts();
     fetchSettings();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        setActiveTab('dashboard');
+        setTimeout(() => searchInputRef.current?.focus(), 0);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleUpdateStock = async (id: string, change: number, reason: string) => {
@@ -204,26 +219,30 @@ export default function App() {
             </div>
 
             <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-              <div className="relative w-full md:w-96">
+              <div className="relative w-full md:w-96 group">
+                <label htmlFor={searchInputId} className="sr-only">Search products by name or ID</label>
                 <input 
+                  id={searchInputId}
+                  ref={searchInputRef}
                   type="text"
-                  placeholder="Search products..."
-                  className="glass-input w-full pl-10 text-sm h-[56px]"
-                  onChange={(e) => {
-                    const term = e.target.value.toLowerCase();
-                    const cards = document.querySelectorAll('.inventory-card-container');
-                    cards.forEach((card: any) => {
-                      const id = card.getAttribute('data-id')?.toLowerCase() || '';
-                      const name = card.getAttribute('data-name')?.toLowerCase() || '';
-                      if (id.includes(term) || name.includes(term)) {
-                        card.style.display = 'block';
-                      } else {
-                        card.style.display = 'none';
-                      }
-                    });
-                  }}
+                  placeholder="Search products... (Press /)"
+                  className="glass-input w-full pl-10 pr-12 text-sm h-[56px] focus:ring-1 focus:ring-sky-500/50"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      searchInputRef.current?.focus();
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-zinc-500 hover:text-white transition-colors"
+                    aria-label="Clear search"
+                  >
+                    <XCircle className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               <div className="flex flex-col md:flex-row gap-4 items-end w-full md:w-auto">
@@ -248,18 +267,48 @@ export default function App() {
               onAdd={handleAddProduct} 
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-              {products.map(product => (
-                <div key={product.id} className="inventory-card-container h-full flex flex-col gap-4" data-id={product.id} data-name={product.name}>
-                  <InventoryCard 
-                    product={product} 
-                    onUpdateStock={handleUpdateStock}
-                    onUpdatePrice={handleUpdatePrice}
-                    onDelete={handleDeleteProduct}
-                  />
+            {(() => {
+              const filtered = products.filter(p =>
+                p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                p.name.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+
+              if (products.length > 0 && filtered.length === 0) {
+                return (
+                  <div className="glass-panel p-20 flex flex-col items-center justify-center text-center">
+                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
+                      <Search className="w-8 h-8 text-zinc-500" />
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2">No matching products</h3>
+                    <p className="text-zinc-500 text-sm mb-8 max-w-xs">We couldn't find any products matching "{searchQuery}"</p>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('');
+                        searchInputRef.current?.focus();
+                      }}
+                      className="px-6 py-3 glass-card text-[10px] font-black uppercase tracking-widest text-sky-400 hover:text-sky-300 transition-all"
+                    >
+                      Clear search filters
+                    </button>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                  {filtered.map(product => (
+                    <div key={product.id} className="h-full flex flex-col gap-4">
+                      <InventoryCard
+                        product={product}
+                        onUpdateStock={handleUpdateStock}
+                        onUpdatePrice={handleUpdatePrice}
+                        onDelete={handleDeleteProduct}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </div>
         )}
 
