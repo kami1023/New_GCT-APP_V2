@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, ReceiptText, History, PlusCircle, Search, Settings as SettingsIcon, PackageSearch, AlertTriangle, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { LayoutDashboard, ReceiptText, History, PlusCircle, Search, Settings as SettingsIcon, PackageSearch, AlertTriangle, Sparkles, X } from 'lucide-react';
 import { Product } from './types';
 import { InventoryCard } from './components/InventoryCard';
 import { BillingForm } from './components/BillingForm';
@@ -15,6 +15,19 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const fetchProducts = () => {
     fetch('/api/products')
@@ -206,24 +219,26 @@ export default function App() {
             <div className="flex flex-col md:flex-row justify-between items-end gap-6">
               <div className="relative w-full md:w-96">
                 <input 
+                  ref={searchInputRef}
                   type="text"
-                  placeholder="Search products..."
-                  className="glass-input w-full pl-10 text-sm h-[56px]"
-                  onChange={(e) => {
-                    const term = e.target.value.toLowerCase();
-                    const cards = document.querySelectorAll('.inventory-card-container');
-                    cards.forEach((card: any) => {
-                      const id = card.getAttribute('data-id')?.toLowerCase() || '';
-                      const name = card.getAttribute('data-name')?.toLowerCase() || '';
-                      if (id.includes(term) || name.includes(term)) {
-                        card.style.display = 'block';
-                      } else {
-                        card.style.display = 'none';
-                      }
-                    });
-                  }}
+                  placeholder="Search products... (Press / to focus)"
+                  className="glass-input w-full pl-10 pr-10 text-sm h-[56px]"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      searchInputRef.current?.focus();
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-full transition-colors"
+                    aria-label="Clear search"
+                  >
+                    <X className="w-4 h-4 text-zinc-500" />
+                  </button>
+                )}
               </div>
 
               <div className="flex flex-col md:flex-row gap-4 items-end w-full md:w-auto">
@@ -248,18 +263,45 @@ export default function App() {
               onAdd={handleAddProduct} 
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-              {products.map(product => (
-                <div key={product.id} className="inventory-card-container h-full flex flex-col gap-4" data-id={product.id} data-name={product.name}>
-                  <InventoryCard 
-                    product={product} 
-                    onUpdateStock={handleUpdateStock}
-                    onUpdatePrice={handleUpdatePrice}
-                    onDelete={handleDeleteProduct}
-                  />
+            {products.filter(p =>
+              p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              p.name.toLowerCase().includes(searchQuery.toLowerCase())
+            ).length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                {products
+                  .filter(p =>
+                    p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map(product => (
+                    <div key={product.id} className="inventory-card-container h-full flex flex-col gap-4">
+                      <InventoryCard
+                        product={product}
+                        onUpdateStock={handleUpdateStock}
+                        onUpdatePrice={handleUpdatePrice}
+                        onDelete={handleDeleteProduct}
+                      />
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <div className="glass-panel p-20 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500">
+                <div className="w-20 h-20 bg-zinc-900/50 rounded-full flex items-center justify-center mb-6 border border-white/5">
+                  <PackageSearch className="w-10 h-10 text-zinc-700" />
                 </div>
-              ))}
-            </div>
+                <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">No matching products</h3>
+                <p className="text-zinc-500 text-sm max-w-xs mb-8">We couldn't find any products matching "{searchQuery}". Try a different term or clear the search.</p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    searchInputRef.current?.focus();
+                  }}
+                  className="px-8 py-3 glass-card text-sky-400 text-[10px] font-black uppercase tracking-widest hover:bg-sky-500/10 transition-all"
+                >
+                  Clear Search
+                </button>
+              </div>
+            )}
           </div>
         )}
 
