@@ -1,0 +1,3 @@
+## 2025-05-15 - [Search UX & Shortcut Implementation]
+**Learning:** Refactoring imperative DOM-based search to declarative React state not only improves code reliability but also enables easy implementation of 'No results found' states and robust focus management. Using a global '/' keyboard shortcut with a visual hint `[/]` in the placeholder significantly improves power-user efficiency and discoverability.
+**Action:** Always prefer declarative state for filtering logic; include keyboard shortcuts for primary interactions like search, and ensure focus is correctly handled when switching views via shortcuts.
