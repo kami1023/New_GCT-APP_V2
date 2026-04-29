@@ -1,0 +1,3 @@
+## 2025-03-24 - Enhanced Search UX & Refactoring
+**Learning:** Declarative state-driven filtering in React is significantly more robust than manual DOM manipulation, especially when integrating accessibility features like clear buttons and empty states. Global keyboard shortcuts like `/` for search improve power-user efficiency but must be implemented with checks for active input elements to avoid focus hijacking.
+**Action:** Always prefer deriving filtered lists from state in the render cycle. Include `[/]` hints in placeholders for keyboard-driven navigation discovery. Use `setTimeout(..., 0)` or `requestAnimationFrame` when switching tabs before focusing an element to ensure the target is mounted and visible.
