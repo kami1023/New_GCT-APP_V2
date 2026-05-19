@@ -4,7 +4,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import Groq from "groq-sdk";
-import * as admin from 'firebase-admin';
+import admin from 'firebase-admin';
 
 // Initialize Firebase Admin
 const firebaseConfigPath = path.join(process.cwd(), 'firebase-applet-config.json');
