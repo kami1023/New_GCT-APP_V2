@@ -1,0 +1,3 @@
+## 2025-05-22 - [Declarative Search & A11y Visibility]
+**Learning:** Imperative DOM manipulation for filtering React components (like `document.querySelectorAll('.inventory-card-container')`) is brittle and prevents implementing features like empty states or keyboard-shortcut-driven focus. Additionally, hover-only actions (like a 'Delete' button) are completely inaccessible to keyboard users unless explicitly made visible on focus using classes like `group-focus-within` or `focus-visible`.
+**Action:** Always refactor imperative UI logic to declarative state-driven patterns to enable clean 'no results' UI. Ensure all hover-activated actions are also triggered by focus states to maintain accessibility.
