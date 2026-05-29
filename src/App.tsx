@@ -15,6 +15,12 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredProducts = products.filter(p =>
+    p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const fetchProducts = () => {
     fetch('/api/products')
@@ -209,19 +215,9 @@ export default function App() {
                   type="text"
                   placeholder="Search products..."
                   className="glass-input w-full pl-10 text-sm h-[56px]"
-                  onChange={(e) => {
-                    const term = e.target.value.toLowerCase();
-                    const cards = document.querySelectorAll('.inventory-card-container');
-                    cards.forEach((card: any) => {
-                      const id = card.getAttribute('data-id')?.toLowerCase() || '';
-                      const name = card.getAttribute('data-name')?.toLowerCase() || '';
-                      if (id.includes(term) || name.includes(term)) {
-                        card.style.display = 'block';
-                      } else {
-                        card.style.display = 'none';
-                      }
-                    });
-                  }}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search products"
                 />
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
               </div>
@@ -248,18 +244,27 @@ export default function App() {
               onAdd={handleAddProduct} 
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-              {products.map(product => (
-                <div key={product.id} className="inventory-card-container h-full flex flex-col gap-4" data-id={product.id} data-name={product.name}>
-                  <InventoryCard 
-                    product={product} 
-                    onUpdateStock={handleUpdateStock}
-                    onUpdatePrice={handleUpdatePrice}
-                    onDelete={handleDeleteProduct}
-                  />
-                </div>
-              ))}
-            </div>
+            {filteredProducts.length > 0 || products.length === 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                {filteredProducts.map(product => (
+                  <div key={product.id} className="h-full flex flex-col gap-4">
+                    <InventoryCard
+                      product={product}
+                      onUpdateStock={handleUpdateStock}
+                      onUpdatePrice={handleUpdatePrice}
+                      onDelete={handleDeleteProduct}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 glass-panel border-dashed border-2 border-white/5">
+                <Search className="w-8 h-8 text-zinc-600 mb-4" />
+                <h3 className="text-xl font-bold text-white mb-2">No products found</h3>
+                <p className="text-zinc-500 mb-8">No results matched your search "{searchQuery}"</p>
+                <button onClick={() => setSearchQuery('')} className="px-6 py-2 glass-panel text-sky-400 text-xs font-black uppercase tracking-widest hover:bg-sky-500/10 transition-all">Clear Search</button>
+              </div>
+            )}
           </div>
         )}
 
