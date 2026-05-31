@@ -47,7 +47,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     : "glass-panel w-full max-w-md p-10 relative animate-in zoom-in-95 duration-300 border-white/10";
 
   return (
-    <div className={containerClasses}>
+    <div
+      className={containerClasses}
+      role={isInline ? undefined : "alertdialog"}
+      aria-modal={isInline ? undefined : "true"}
+      aria-labelledby="dialog-title"
+    >
       {!isInline && !isPopover && (
         <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onCancel} />
       )}
@@ -68,6 +73,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <button 
             onClick={onCancel}
             className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors"
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
@@ -84,10 +90,13 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             <AlertTriangle className={isInline || isPopover ? "w-5 h-5" : "w-8 h-8"} />
           </div>
 
-          <h3 className={cn(
-            isInline || isPopover ? "text-lg mb-2" : "text-2xl mb-3",
-            "font-black text-white uppercase tracking-tighter"
-          )}>
+          <h3
+            id="dialog-title"
+            className={cn(
+              isInline || isPopover ? "text-lg mb-2" : "text-2xl mb-3",
+              "font-black text-white uppercase tracking-tighter"
+            )}
+          >
             {title}
           </h3>
           <p className={cn(
