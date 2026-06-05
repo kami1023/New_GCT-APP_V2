@@ -4,7 +4,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import Groq from "groq-sdk";
-import * as admin from 'firebase-admin';
+import admin from 'firebase-admin';
 
 // Initialize Firebase Admin
 const firebaseConfigPath = path.join(process.cwd(), 'firebase-applet-config.json');
@@ -83,8 +83,6 @@ async function restoreFromCloud() {
     }
   }
 }
-
-restoreFromCloud().catch(console.error);
 
 // Lazy Groq initialization to prevent crash if key is missing
 let groq: Groq | null = null;
@@ -186,6 +184,8 @@ const insertProduct = db.prepare("INSERT OR IGNORE INTO products (id, name, stoc
 for (let i = 1; i <= 6; i++) {
   insertProduct.run(`MK${i}`, `MK Series ${i}`, 0);
 }
+
+restoreFromCloud().catch(console.error);
 
 async function startServer() {
   const app = express();
