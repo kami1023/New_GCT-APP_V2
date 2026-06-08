@@ -1,0 +1,3 @@
+## 2025-05-15 - [Search & Accessibility Enhancements]
+**Learning:** Legacy imperative DOM manipulation for search filtering was brittle and bypassed React's render cycle, leading to potential UI inconsistencies. Additionally, hover-only actions (like the Delete button) were inaccessible to keyboard users and lacked screen reader context.
+**Action:** Always use declarative state for filtering lists to ensure consistent rendering and support for empty states. Use `group-focus-within` and `focus-visible` to ensure interactive elements revealed on hover are also discoverable for keyboard users, and provide explicit `aria-label` attributes for icon-only buttons.
