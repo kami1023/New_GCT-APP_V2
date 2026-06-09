@@ -1,0 +1,3 @@
+## 2025-05-15 - [Search UX & Accessibility]
+**Learning:** The inventory dashboard used imperative DOM manipulation for search filtering, which prevented the implementation of helpful UX features like empty states and "Clear Search" actions. Additionally, destructive actions (Delete) were hidden on hover without focus-visible counterparts, making the dashboard difficult for keyboard users.
+**Action:** Always use declarative React state for search filtering to enable robust empty states. Ensure all icon-only buttons (especially destructive ones) are visible on focus with clear ARIA labels and focus rings.
