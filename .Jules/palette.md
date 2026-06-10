@@ -1,0 +1,3 @@
+## 2025-05-15 - Declarative Search & Keyboard Accessibility
+**Learning:** Transitioning from imperative DOM manipulation to declarative React state for search allows for better UI synchronization, such as easy implementation of empty states and "Clear Search" actions. Additionally, global keyboard shortcuts (like `/` for search) should always check for active input/textarea focus to avoid hijacking user input.
+**Action:** Use `useRef` for programmatic focus control when combining global shortcuts with view transitions. Always include a visible hint (e.g., `[/]`) in placeholders for discoverability.
