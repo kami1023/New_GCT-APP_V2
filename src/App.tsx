@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, ReceiptText, History, PlusCircle, Search, Settings as SettingsIcon, PackageSearch, AlertTriangle, Sparkles } from 'lucide-react';
+import { LayoutDashboard, ReceiptText, History, PlusCircle, Search, Settings as SettingsIcon, PackageSearch, AlertTriangle, Sparkles, X } from 'lucide-react';
 import { Product } from './types';
 import { InventoryCard } from './components/InventoryCard';
 import { BillingForm } from './components/BillingForm';
@@ -15,6 +15,7 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchProducts = () => {
     fetch('/api/products')
@@ -32,6 +33,24 @@ export default function App() {
     fetchProducts();
     fetchSettings();
   }, []);
+
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) {
+        e.preventDefault();
+        if (activeTab !== 'dashboard') {
+          setActiveTab('dashboard');
+          setTimeout(() => searchInputRef.current?.focus(), 0);
+        } else {
+          searchInputRef.current?.focus();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeTab]);
 
   const handleUpdateStock = async (id: string, change: number, reason: string) => {
     try {
@@ -206,24 +225,24 @@ export default function App() {
             <div className="flex flex-col md:flex-row justify-between items-end gap-6">
               <div className="relative w-full md:w-96">
                 <input 
+                  ref={searchInputRef}
                   type="text"
-                  placeholder="Search products..."
-                  className="glass-input w-full pl-10 text-sm h-[56px]"
-                  onChange={(e) => {
-                    const term = e.target.value.toLowerCase();
-                    const cards = document.querySelectorAll('.inventory-card-container');
-                    cards.forEach((card: any) => {
-                      const id = card.getAttribute('data-id')?.toLowerCase() || '';
-                      const name = card.getAttribute('data-name')?.toLowerCase() || '';
-                      if (id.includes(term) || name.includes(term)) {
-                        card.style.display = 'block';
-                      } else {
-                        card.style.display = 'none';
-                      }
-                    });
-                  }}
+                  placeholder="Search products... [/]"
+                  className="glass-input w-full pl-10 pr-12 text-sm h-[56px]"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search products"
                 />
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
+                    aria-label="Clear search"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               <div className="flex flex-col md:flex-row gap-4 items-end w-full md:w-auto">
@@ -248,18 +267,47 @@ export default function App() {
               onAdd={handleAddProduct} 
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-              {products.map(product => (
-                <div key={product.id} className="inventory-card-container h-full flex flex-col gap-4" data-id={product.id} data-name={product.name}>
-                  <InventoryCard 
-                    product={product} 
-                    onUpdateStock={handleUpdateStock}
-                    onUpdatePrice={handleUpdatePrice}
-                    onDelete={handleDeleteProduct}
-                  />
+            {(() => {
+              const filteredProducts = products.filter(p =>
+                p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                p.name.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+
+              if (filteredProducts.length > 0 || (products.length === 0 && !searchQuery)) {
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                    {filteredProducts.map(product => (
+                      <div key={product.id} className="h-full flex flex-col gap-4">
+                        <InventoryCard
+                          product={product}
+                          onUpdateStock={handleUpdateStock}
+                          onUpdatePrice={handleUpdatePrice}
+                          onDelete={handleDeleteProduct}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                );
+              }
+
+              return (
+                <div className="glass-panel py-20 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500">
+                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-6 border border-white/10">
+                  <Search className="w-8 h-8 text-zinc-500" />
                 </div>
-              ))}
-            </div>
+                <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">No results found</h3>
+                  <p className="text-zinc-500 text-sm max-w-xs mx-auto mb-8">
+                    We couldn't find any products matching "{searchQuery}". Try a different search term.
+                  </p>
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="px-8 py-3 bg-white text-black rounded-sm text-[10px] font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all"
+                  >
+                    Clear Search
+                  </button>
+                </div>
+              );
+            })()}
           </div>
         )}
 
