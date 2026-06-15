@@ -82,7 +82,8 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         </div>
         <button 
           onClick={handleDeleteClick}
-          className="p-3 hover:bg-red-500/20 text-zinc-700 hover:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 opacity-0 group-hover:opacity-100"
+          className="p-3 hover:bg-red-500/20 text-zinc-700 hover:text-red-400 focus:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 focus:border-red-500/30 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-red-500/50 outline-none"
+          aria-label={`Delete product ${product.id}`}
           title="Delete Product"
         >
           <Trash2 className="w-5 h-5" />
@@ -108,14 +109,16 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         <div className="flex flex-col gap-2">
           <button 
             onClick={handlePlus}
-            className="p-2.5 hover:bg-emerald-500/20 text-emerald-400 rounded-sm transition-all border border-white/5 hover:border-emerald-500/30 bg-white/5"
+            className="p-2.5 hover:bg-emerald-500/20 text-emerald-400 rounded-sm transition-all border border-white/5 hover:border-emerald-500/30 bg-white/5 focus-visible:ring-1 focus-visible:ring-emerald-500/50 outline-none"
+            aria-label={`Increase stock for ${product.id}`}
             title="Increase Stock"
           >
             <Plus className="w-4 h-4" />
           </button>
           <button 
             onClick={handleMinus}
-            className="p-2.5 hover:bg-red-500/20 text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 bg-white/5"
+            className="p-2.5 hover:bg-red-500/20 text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 bg-white/5 focus-visible:ring-1 focus-visible:ring-red-500/50 outline-none"
+            aria-label={`Decrease stock for ${product.id}`}
             title="Decrease Stock"
           >
             <Minus className="w-4 h-4" />
