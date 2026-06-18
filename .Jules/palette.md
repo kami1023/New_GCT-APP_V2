@@ -1,0 +1,4 @@
+## 2025-05-15 - [Search UX & Keyboard Accessibility]
+**Learning:** In dashboards where search is a primary action, a global keyboard shortcut ('/') significantly improves power-user efficiency. When the search input is confined to a specific view (e.g., Inventory tab), the shortcut must programmatically handle view-switching before focusing. Additionally, imperative DOM-based filtering (using `querySelectorAll`) creates maintenance debt and prevents reliable 'Empty State' rendering.
+
+**Action:** Always refactor imperative DOM filtering to declarative React state. Implement a '/' shortcut that ensures the correct tab is active, and provide visual hints (e.g., `[/]`) in the placeholder for discoverability. Ensure destructive actions (like Delete) hidden on hover are made visible on `focus-visible` to support keyboard-only users.
