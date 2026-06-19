@@ -1,0 +1,3 @@
+## 2025-05-15 - Search UX and Accessibility Enhancements
+**Learning:** When implementing a keyboard shortcut (like '/') that triggers a tab switch before focusing an input, a 'setTimeout(..., 0)' is often necessary to ensure the target input is rendered and available in the DOM before the focus attempt. Additionally, search inputs should always have an explicit 'aria-label' for screen readers, and providing a visual hint (like '[/]') in the placeholder improves discoverability for power users.
+**Action:** Use declarative state for filtering instead of imperative DOM manipulation to ensure consistent UI states (like empty results). Always include a 'Clear Search' action both as an inline button and a prominent call-to-action in empty states.
