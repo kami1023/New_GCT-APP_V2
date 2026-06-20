@@ -1,0 +1,3 @@
+## 2025-05-14 - [Declarative Search & Keyboard Shortcuts]
+**Learning:** Imperative DOM manipulation for search filtering in React applications leads to brittle UI that breaks on re-renders and lacks proper empty states. Additionally, implementing keyboard shortcuts like '/' requires careful focus management (using `setTimeout`) when the target input might be on a different tab.
+**Action:** Always use declarative state (`useMemo`) for list filtering. When implementing shortcuts, provide visual hints (e.g., `[/]`) in placeholders and ensure the target element is rendered and ready before applying focus.
