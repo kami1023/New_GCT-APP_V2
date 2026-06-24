@@ -1,0 +1,3 @@
+## 2026-06-24 - [Declarative Search vs Imperative DOM Manipulation]
+**Learning:** In React applications, using imperative DOM manipulation (like querySelectorAll and style.display) for search filtering breaks the declarative paradigm, making it difficult to implement associated UX features like empty states, "Clear Search" actions, and keyboard shortcuts. Transitioning to a declarative state-driven approach simplifies the implementation of these "delightful" touches.
+**Action:** Always prioritize refactoring imperative filtering logic to declarative React state when adding UX enhancements to search interfaces.
