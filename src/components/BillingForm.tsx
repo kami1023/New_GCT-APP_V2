@@ -224,10 +224,20 @@ export const BillingForm: React.FC<BillingFormProps> = ({ settings }) => {
             <input 
               type="text"
               placeholder="Search existing clients..."
-              className="glass-input w-full pl-12"
+              aria-label="Search existing clients"
+              className="glass-input w-full pl-12 pr-10"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-4 top-2.5 p-1 hover:bg-white/10 rounded-sm text-zinc-500 hover:text-white transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
             <Search className="absolute left-4 top-2.5 w-5 h-5 text-zinc-600" />
           </div>
 
