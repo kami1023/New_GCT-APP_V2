@@ -1,0 +1,3 @@
+## 2025-05-14 - Declarative Search & Global Shortcut
+**Learning:** Refactoring imperative DOM-based search to React state allows for much richer UX features like "No results" empty states, clear-search buttons, and persistent input focus across tab switches. A global keyboard shortcut ('/') significantly improves efficiency for power users but requires careful handling of focus states to avoid accidental triggers.
+**Action:** Always prefer declarative state for search logic. Include a `useRef` for the search input to support programmatic focus after clear actions or tab changes. Ensure global listeners ignore input/textarea targets.

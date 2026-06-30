@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, ReceiptText, History, PlusCircle, Search, Settings as SettingsIcon, PackageSearch, AlertTriangle, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { LayoutDashboard, ReceiptText, History, PlusCircle, Search, Settings as SettingsIcon, PackageSearch, AlertTriangle, Sparkles, X } from 'lucide-react';
 import { Product } from './types';
 import { InventoryCard } from './components/InventoryCard';
 import { BillingForm } from './components/BillingForm';
@@ -15,6 +15,8 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const fetchProducts = () => {
     fetch('/api/products')
@@ -31,6 +33,16 @@ export default function App() {
   useEffect(() => {
     fetchProducts();
     fetchSettings();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        setActiveTab('dashboard');
+        setTimeout(() => searchRef.current?.focus(), 0);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleUpdateStock = async (id: string, change: number, reason: string) => {
@@ -204,26 +216,26 @@ export default function App() {
             </div>
 
             <div className="flex flex-col md:flex-row justify-between items-end gap-6">
-              <div className="relative w-full md:w-96">
+              <div className="relative w-full md:w-96 group">
                 <input 
+                  ref={searchRef}
                   type="text"
                   placeholder="Search products..."
-                  className="glass-input w-full pl-10 text-sm h-[56px]"
-                  onChange={(e) => {
-                    const term = e.target.value.toLowerCase();
-                    const cards = document.querySelectorAll('.inventory-card-container');
-                    cards.forEach((card: any) => {
-                      const id = card.getAttribute('data-id')?.toLowerCase() || '';
-                      const name = card.getAttribute('data-name')?.toLowerCase() || '';
-                      if (id.includes(term) || name.includes(term)) {
-                        card.style.display = 'block';
-                      } else {
-                        card.style.display = 'none';
-                      }
-                    });
-                  }}
+                  aria-label="Search products"
+                  value={searchQuery}
+                  className="glass-input w-full pl-10 pr-12 text-sm h-[56px]"
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-sky-400 transition-colors" />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                  {searchQuery ? (
+                    <button onClick={() => setSearchQuery('')} aria-label="Clear search" className="p-1 hover:bg-white/10 rounded-sm text-zinc-500 hover:text-white transition-all">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  ) : (
+                    <kbd className="hidden md:block px-1.5 py-0.5 rounded border border-zinc-800 bg-zinc-900/50 text-[10px] font-mono text-zinc-600"> / </kbd>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col md:flex-row gap-4 items-end w-full md:w-auto">
@@ -248,9 +260,15 @@ export default function App() {
               onAdd={handleAddProduct} 
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-              {products.map(product => (
-                <div key={product.id} className="inventory-card-container h-full flex flex-col gap-4" data-id={product.id} data-name={product.name}>
+            <div className={cn(
+              "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6",
+              searchQuery && products.filter(p => p.id.toLowerCase().includes(searchQuery.toLowerCase()) || p.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && "hidden"
+            )}>
+              {products.filter(p =>
+                p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                p.name.toLowerCase().includes(searchQuery.toLowerCase())
+              ).map(product => (
+                <div key={product.id} className="h-full flex flex-col gap-4">
                   <InventoryCard 
                     product={product} 
                     onUpdateStock={handleUpdateStock}
@@ -260,6 +278,14 @@ export default function App() {
                 </div>
               ))}
             </div>
+
+            {searchQuery && products.length > 0 && products.filter(p => p.id.toLowerCase().includes(searchQuery.toLowerCase()) || p.name.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
+              <div className="flex flex-col items-center justify-center py-32 glass-panel border-dashed border-white/10 animate-in fade-in zoom-in-95 duration-500">
+                <PackageSearch className="w-16 h-16 text-zinc-800 mb-6" />
+                <h3 className="text-zinc-500 font-black uppercase tracking-[0.2em] text-sm">No results for "{searchQuery}"</h3>
+                <button onClick={() => setSearchQuery('')} className="mt-6 px-6 py-2 glass-panel text-sky-400 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-sky-500/10 transition-all">Clear Search</button>
+              </div>
+            )}
           </div>
         )}
 
