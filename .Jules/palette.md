@@ -1,0 +1,3 @@
+## 2025-05-15 - [Accessible Focus States and Declarative Search]
+**Learning:** Transitioning from imperative DOM-manipulation search (using `document.querySelectorAll` and `style.display`) to declarative React state enables much richer UX features like 'No results' empty states, 'Clear search' buttons, and robust programmatic focus management. Additionally, hover-only interactive elements (like delete buttons) must explicitly use `focus-visible` to remain accessible to keyboard users.
+**Action:** Always favor declarative state for filtering and ensure every hover-based action has an equivalent `focus-visible` state with clear visual feedback (e.g., a ring).
