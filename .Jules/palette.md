@@ -1,0 +1,3 @@
+## 2025-05-14 - [Refactor Search for Robust UX]
+**Learning:** Transitioning search logic from imperative DOM manipulation to declarative React state enables more robust UX features such as 'No results' empty states and programmatic focus management while keeping the codebase concise. Additionally, when implementing global shortcuts (like '/'), the listener should programmatically switch to the relevant tab before applying focus to ensure a seamless experience.
+**Action:** Always prefer declarative state for UI filtering and ensure keyboard shortcuts handle application state (like active tabs) before focusing elements. Use specific ARIA labels and 'exact=True' in Playwright tests to avoid strict mode violations when similar labels exist.
