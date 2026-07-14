@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, ReceiptText, History, PlusCircle, Search, Settings as SettingsIcon, PackageSearch, AlertTriangle, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { LayoutDashboard, ReceiptText, History, PlusCircle, Search, Settings as SettingsIcon, PackageSearch, AlertTriangle, Sparkles, X } from 'lucide-react';
 import { Product } from './types';
 import { InventoryCard } from './components/InventoryCard';
 import { BillingForm } from './components/BillingForm';
@@ -15,6 +15,21 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  const filteredProducts = useMemo(() =>
+    products.filter(p => p.id.toLowerCase().includes(searchTerm.toLowerCase()) || p.name.toLowerCase().includes(searchTerm.toLowerCase())), [products, searchTerm]);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName || '')) {
+        e.preventDefault(); setActiveTab('dashboard'); setTimeout(() => searchRef.current?.focus(), 0);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
 
   const fetchProducts = () => {
     fetch('/api/products')
@@ -205,25 +220,13 @@ export default function App() {
 
             <div className="flex flex-col md:flex-row justify-between items-end gap-6">
               <div className="relative w-full md:w-96">
-                <input 
-                  type="text"
-                  placeholder="Search products..."
-                  className="glass-input w-full pl-10 text-sm h-[56px]"
-                  onChange={(e) => {
-                    const term = e.target.value.toLowerCase();
-                    const cards = document.querySelectorAll('.inventory-card-container');
-                    cards.forEach((card: any) => {
-                      const id = card.getAttribute('data-id')?.toLowerCase() || '';
-                      const name = card.getAttribute('data-name')?.toLowerCase() || '';
-                      if (id.includes(term) || name.includes(term)) {
-                        card.style.display = 'block';
-                      } else {
-                        card.style.display = 'none';
-                      }
-                    });
-                  }}
-                />
+                <input ref={searchRef} type="text" placeholder="Search products..." aria-label="Search products" className="glass-input w-full pl-10 pr-12 text-sm h-[56px]" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                {searchTerm && (
+                  <button onClick={() => { setSearchTerm(''); searchRef.current?.focus(); }} className="absolute right-14 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-sm text-zinc-500 hover:text-white transition-colors" aria-label="Clear search">
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               <div className="flex flex-col md:flex-row gap-4 items-end w-full md:w-auto">
@@ -248,18 +251,22 @@ export default function App() {
               onAdd={handleAddProduct} 
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-              {products.map(product => (
-                <div key={product.id} className="inventory-card-container h-full flex flex-col gap-4" data-id={product.id} data-name={product.name}>
-                  <InventoryCard 
-                    product={product} 
-                    onUpdateStock={handleUpdateStock}
-                    onUpdatePrice={handleUpdatePrice}
-                    onDelete={handleDeleteProduct}
-                  />
-                </div>
-              ))}
-            </div>
+            {filteredProducts.length > 0 || products.length === 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
+                {filteredProducts.map(product => (
+                  <div key={product.id} className="h-full flex flex-col gap-4">
+                    <InventoryCard product={product} onUpdateStock={handleUpdateStock} onUpdatePrice={handleUpdatePrice} onDelete={handleDeleteProduct} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="glass-panel p-20 flex flex-col items-center justify-center text-center">
+                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6"><Search className="w-10 h-10 text-zinc-700" /></div>
+                <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">No results found</h3>
+                <p className="text-zinc-500 mb-8 max-w-xs">We couldn't find any products matching "{searchTerm}"</p>
+                <button onClick={() => { setSearchTerm(''); searchRef.current?.focus(); }} className="px-8 py-3 glass-card text-sky-400 text-[10px] font-black uppercase tracking-widest hover:bg-sky-500/10">Clear Search</button>
+              </div>
+            )}
           </div>
         )}
 

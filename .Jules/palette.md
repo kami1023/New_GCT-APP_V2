@@ -1,0 +1,3 @@
+## 2025-05-14 - [Search UX & Keyboard Shortcuts]
+**Learning:** Transitioning search logic from imperative DOM manipulation to declarative React state enables robust UX features like "No results" empty states and programmatic focus management. When implementing a '/' shortcut to focus search, always check `document.activeElement` to ensure the user isn't already typing in an input. If the shortcut also triggers a tab switch, use `setTimeout(() => ref.current?.focus(), 0)` to ensure the element is rendered before applying focus.
+**Action:** Use `useMemo` for filtering and `useRef` for focus management in future dashboard search implementations.
