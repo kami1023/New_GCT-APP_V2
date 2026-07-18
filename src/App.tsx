@@ -208,6 +208,7 @@ export default function App() {
                 <input 
                   type="text"
                   placeholder="Search products..."
+                  aria-label="Search products"
                   className="glass-input w-full pl-10 text-sm h-[56px]"
                   onChange={(e) => {
                     const term = e.target.value.toLowerCase();
