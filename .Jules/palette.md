@@ -1,0 +1,3 @@
+## 2025-07-20 - [Hover Actions Discoverability & Color Contrast]
+**Learning:** Actions revealed only on hover (such as a 'Delete' button in product cards) must be accessible to keyboard-only and screen reader users. Simply hiding them with CSS hover makes them undiscoverable and un-actionable for these users. Furthermore, elements with low color contrast (like `text-zinc-700` on dark backgrounds) fail contrast requirements and hamper legibility.
+**Action:** Use CSS focus-within or group focus selectors (like `focus-visible:opacity-100` and `group-focus-within:opacity-100`) combined with proper `aria-label` attributes and focus-ring states to ensure buttons are discoverable and fully interactive via keyboard.
