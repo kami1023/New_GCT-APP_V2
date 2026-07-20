@@ -224,6 +224,7 @@ export const BillingForm: React.FC<BillingFormProps> = ({ settings }) => {
             <input 
               type="text"
               placeholder="Search existing clients..."
+              aria-label="Search existing clients"
               className="glass-input w-full pl-12"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
