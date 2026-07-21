@@ -13,6 +13,20 @@ import { GoogleGenAI } from "@google/genai";
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'billing' | 'logs' | 'stock-logs' | 'settings'>('dashboard');
   const [products, setProducts] = useState<Product[]>([]);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchRef = React.useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (activeTab !== 'dashboard') return;
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeTab]);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
 
@@ -206,9 +220,13 @@ export default function App() {
             <div className="flex flex-col md:flex-row justify-between items-end gap-6">
               <div className="relative w-full md:w-96">
                 <input 
+                  ref={searchRef}
                   type="text"
                   placeholder="Search products..."
-                  className="glass-input w-full pl-10 text-sm h-[56px]"
+                  className="glass-input w-full pl-10 pr-12 text-sm h-[56px]"
+                  aria-label="Search products"
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setIsSearchFocused(false)}
                   onChange={(e) => {
                     const term = e.target.value.toLowerCase();
                     const cards = document.querySelectorAll('.inventory-card-container');
@@ -224,6 +242,11 @@ export default function App() {
                   }}
                 />
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                {!isSearchFocused && (
+                  <kbd className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-0.5 text-[10px] font-bold text-zinc-500 bg-white/5 border border-white/10 rounded pointer-events-none uppercase tracking-widest font-mono">
+                    /
+                  </kbd>
+                )}
               </div>
 
               <div className="flex flex-col md:flex-row gap-4 items-end w-full md:w-auto">
