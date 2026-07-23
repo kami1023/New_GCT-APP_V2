@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Minus, Package, Trash2 } from 'lucide-react';
-import { Product } from '../types';
-import { formatCurrency } from '../utils';
-import { ConfirmDialog } from './ConfirmDialog';
+import React, { useState, useEffect } from "react";
+import { Plus, Minus, Package, Trash2 } from "lucide-react";
+import { Product } from "../types";
+import { formatCurrency } from "../utils";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 interface InventoryCardProps {
   product: Product;
@@ -11,7 +11,12 @@ interface InventoryCardProps {
   onDelete: (id: string) => void;
 }
 
-export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateStock, onUpdatePrice, onDelete }) => {
+export const InventoryCard: React.FC<InventoryCardProps> = ({
+  product,
+  onUpdateStock,
+  onUpdatePrice,
+  onDelete,
+}) => {
   const [localStock, setLocalStock] = useState(product.stock_level.toString());
   const [localPrice, setLocalPrice] = useState(product.price.toString());
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -69,7 +74,7 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       (e.target as HTMLInputElement).blur();
     }
   };
@@ -80,16 +85,17 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         <div className="p-4 bg-white/5 rounded-sm border border-white/10 group-hover:scale-110 transition-transform duration-500">
           <Package className="w-8 h-8 text-sky-400" />
         </div>
-        <button 
+        <button
           onClick={handleDeleteClick}
-          className="p-3 hover:bg-red-500/20 text-zinc-700 hover:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 opacity-0 group-hover:opacity-100"
+          className="p-3 hover:bg-red-500/20 text-zinc-700 hover:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-red-500/50 focus-visible:outline-none"
           title="Delete Product"
+          aria-label={`Delete ${product.name}`}
         >
           <Trash2 className="w-5 h-5" />
         </button>
       </div>
 
-      <ConfirmDialog 
+      <ConfirmDialog
         isOpen={isConfirmOpen}
         title="Delete Product?"
         message={`WARNING: Deleting ${product.id} will also remove it from all existing invoices and logs. This action cannot be undone.`}
@@ -98,31 +104,37 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         onCancel={() => setIsConfirmOpen(false)}
         isInline={true}
       />
-      
+
       <div className="space-y-1 flex-1">
-        <h3 className="text-white font-black text-2xl uppercase tracking-tighter">{product.id}</h3>
-        <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">{product.name}</p>
+        <h3 className="text-white font-black text-2xl uppercase tracking-tighter">
+          {product.id}
+        </h3>
+        <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em]">
+          {product.name}
+        </p>
       </div>
 
       <div className="flex items-center gap-6 my-8">
         <div className="flex flex-col gap-2">
-          <button 
+          <button
             onClick={handlePlus}
-            className="p-2.5 hover:bg-emerald-500/20 text-emerald-400 rounded-sm transition-all border border-white/5 hover:border-emerald-500/30 bg-white/5"
+            className="p-2.5 hover:bg-emerald-500/20 text-emerald-400 rounded-sm transition-all border border-white/5 hover:border-emerald-500/30 bg-white/5 focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:outline-none"
             title="Increase Stock"
+            aria-label={`Increase ${product.name} stock`}
           >
             <Plus className="w-4 h-4" />
           </button>
-          <button 
+          <button
             onClick={handleMinus}
-            className="p-2.5 hover:bg-red-500/20 text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 bg-white/5"
+            className="p-2.5 hover:bg-red-500/20 text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 bg-white/5 focus-visible:ring-2 focus-visible:ring-red-500/50 focus-visible:outline-none"
             title="Decrease Stock"
+            aria-label={`Decrease ${product.name} stock`}
           >
             <Minus className="w-4 h-4" />
           </button>
         </div>
         <div className="flex items-baseline gap-1">
-          <input 
+          <input
             type="text"
             className="bg-transparent text-7xl font-black text-white tracking-tighter w-28 outline-none border-none cursor-default focus:cursor-text"
             value={localStock}
@@ -130,27 +142,33 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
           />
-          <span className="text-zinc-500 text-[8px] font-black uppercase tracking-[0.2em] -ml-2">Units</span>
+          <span className="text-zinc-500 text-[8px] font-black uppercase tracking-[0.2em] -ml-2">
+            Units
+          </span>
         </div>
       </div>
-      
+
       <div className="pt-6 border-t border-white/5 space-y-4">
         <div className="flex justify-between items-center">
-          <span className="text-zinc-500 text-[10px] uppercase font-black tracking-widest">Unit Price</span>
+          <span className="text-zinc-500 text-[10px] uppercase font-black tracking-widest">
+            Unit Price
+          </span>
           <div className="flex items-center gap-1">
             <span className="text-white font-mono font-bold text-lg">₹</span>
-            <input 
+            <input
               type="text"
               className="bg-transparent text-white font-mono font-bold text-lg w-20 outline-none border-none text-right cursor-default focus:cursor-text"
               value={localPrice}
-              onChange={e => setLocalPrice(e.target.value)}
+              onChange={(e) => setLocalPrice(e.target.value)}
               onBlur={handlePriceBlur}
               onKeyDown={handleKeyDown}
             />
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-zinc-500 text-[10px] uppercase font-black tracking-widest">Market Value</span>
+          <span className="text-zinc-500 text-[10px] uppercase font-black tracking-widest">
+            Market Value
+          </span>
           <span className="text-white font-mono font-bold text-lg">
             {formatCurrency(product.stock_level * product.price)}
           </span>
