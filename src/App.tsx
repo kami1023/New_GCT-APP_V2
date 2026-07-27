@@ -207,6 +207,7 @@ export default function App() {
               <div className="relative w-full md:w-96">
                 <input 
                   type="text"
+                  aria-label="Search products"
                   placeholder="Search products..."
                   className="glass-input w-full pl-10 text-sm h-[56px]"
                   onChange={(e) => {

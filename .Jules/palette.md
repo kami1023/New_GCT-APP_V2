@@ -1,0 +1,3 @@
+## 2025-07-27 - [Hover-only Actions Focus Accessibility]
+**Learning:** Actions on dashboard/grid cards that are only shown on hover (like Delete buttons) are completely inaccessible and invisible to keyboard-only users because they cannot hover over them. By combining Tailwind utility classes such as `focus:opacity-100` and `focus-visible:opacity-100 focus-visible:ring-2`, we can reveal these actions instantly upon keyboard focus, providing a highly accessible and seamless power-user experience without cluttering the screen for mouse users.
+**Action:** Always make sure hover-only controls on list or grid elements include focus states that set opacity/visibility to 100% and provide a clear focus indicator ring.
