@@ -1,0 +1,3 @@
+## 2026-03-20 - Ensure Keyboard Discoverability of Hover-Revealed Card Actions
+**Learning:** Actions embedded in card layouts that are hidden by default and only revealed on hover (e.g., using `opacity-0 group-hover:opacity-100`) are completely inaccessible and invisible to keyboard-only users navigating via Tab. This is because standard keyboard navigation does not trigger hover states.
+**Action:** Always combine hover reveal styles with focus states (e.g., `focus-visible:opacity-100`) and a clear focus ring (`focus-visible:ring-2`) to ensure that any interactive elements are immediately visible and navigable when keyboard focus lands on them.

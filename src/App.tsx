@@ -209,6 +209,7 @@ export default function App() {
                   type="text"
                   placeholder="Search products..."
                   className="glass-input w-full pl-10 text-sm h-[56px]"
+                  aria-label="Search products"
                   onChange={(e) => {
                     const term = e.target.value.toLowerCase();
                     const cards = document.querySelectorAll('.inventory-card-container');
