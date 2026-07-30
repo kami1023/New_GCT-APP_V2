@@ -1,0 +1,3 @@
+## 2025-03-01 - Transitioning Imperative Search to Declarative React State
+**Learning:** Transitioning search logic from imperative DOM manipulation to declarative React state enables much more robust UX features (such as dynamic 'No results found' empty states with direct recovery paths, inline clear-search actions, and programmatic focus restoration) while keeping the codebase highly maintainable and concise.
+**Action:** When working on design system dashboards, prioritize declarative array filtering via `useMemo` over manual DOM element display manipulation (`style.display`). Combine this with programmatic `useRef` focus callbacks on clear/reset actions to ensure optimal keyboard-only accessibility.
