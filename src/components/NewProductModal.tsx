@@ -31,15 +31,20 @@ export const NewProductModal: React.FC<NewProductModalProps> = ({ isOpen, onClos
       <div className="glass-panel w-full max-w-md p-10 relative animate-in zoom-in-95 duration-300">
         <div className="flex justify-between items-center mb-8">
           <h3 className="text-2xl font-black text-white tracking-tight">New Product</h3>
-          <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors">
+          <button
+            onClick={onClose}
+            aria-label="Close modal"
+            className="text-zinc-500 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-white outline-none rounded-sm"
+          >
             <X className="w-6 h-6" />
           </button>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest">Product ID (e.g. MK7)</label>
+            <label htmlFor="productId" className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest">Product ID (e.g. MK7)</label>
             <input 
+              id="productId"
               className="glass-input w-full font-mono uppercase"
               value={id}
               onChange={e => setId(e.target.value.toUpperCase())}
@@ -49,8 +54,9 @@ export const NewProductModal: React.FC<NewProductModalProps> = ({ isOpen, onClos
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest">Product Name</label>
+            <label htmlFor="productName" className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest">Product Name</label>
             <input 
+              id="productName"
               className="glass-input w-full"
               value={name}
               onChange={e => setName(e.target.value)}
@@ -59,8 +65,9 @@ export const NewProductModal: React.FC<NewProductModalProps> = ({ isOpen, onClos
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest">Base Price (₹)</label>
+            <label htmlFor="basePrice" className="block text-[10px] font-black text-zinc-500 uppercase tracking-widest">Base Price (₹)</label>
             <input 
+              id="basePrice"
               type="number"
               className="glass-input w-full font-mono"
               value={price}
