@@ -280,7 +280,7 @@ function TabButton({ active, onClick, icon, label }: { active: boolean, onClick:
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-2 px-5 py-2.5 rounded-sm text-xs font-bold uppercase tracking-widest transition-all duration-300",
+        "flex items-center gap-2 px-5 py-2.5 rounded-sm text-xs font-bold uppercase tracking-widest transition-all duration-300 focus-visible:ring-2 focus-visible:ring-white outline-none",
         active 
           ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)]" 
           : "text-zinc-500 hover:text-zinc-200 hover:bg-white/5"
