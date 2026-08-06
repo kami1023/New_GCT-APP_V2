@@ -1,0 +1,3 @@
+## 2025-03-02 - Keyboard accessibility for hover-only actions
+**Learning:** Actions that are only revealed on hover (like delete buttons on cards) are completely inaccessible to keyboard-only users unless they are also shown on focus. Utilizing Tailwind's `focus-visible:opacity-100` and `group-focus-within:opacity-100` alongside proper focus rings ensures keyboard discoverability and high accessibility.
+**Action:** When creating hover states for critical actions, always pair them with group/focus visible utility classes and focus ring styles to maintain UI elegance while ensuring accessibility is never compromised.

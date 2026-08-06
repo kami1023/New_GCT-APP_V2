@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LayoutDashboard, ReceiptText, History, PlusCircle, Search, Settings as SettingsIcon, PackageSearch, AlertTriangle, Sparkles } from 'lucide-react';
 import { Product } from './types';
 import { InventoryCard } from './components/InventoryCard';
@@ -15,6 +15,18 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [isNewProductModalOpen, setIsNewProductModalOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const fetchProducts = () => {
     fetch('/api/products')
@@ -206,9 +218,11 @@ export default function App() {
             <div className="flex flex-col md:flex-row justify-between items-end gap-6">
               <div className="relative w-full md:w-96">
                 <input 
+                  ref={searchInputRef}
                   type="text"
-                  placeholder="Search products..."
-                  className="glass-input w-full pl-10 text-sm h-[56px]"
+                  placeholder="Search products... (Press '/' to focus)"
+                  aria-label="Search products"
+                  className="glass-input w-full pl-10 text-sm h-[56px] focus-visible:ring-2 focus-visible:ring-sky-500 outline-none"
                   onChange={(e) => {
                     const term = e.target.value.toLowerCase();
                     const cards = document.querySelectorAll('.inventory-card-container');
