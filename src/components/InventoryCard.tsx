@@ -82,7 +82,8 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         </div>
         <button 
           onClick={handleDeleteClick}
-          className="p-3 hover:bg-red-500/20 text-zinc-700 hover:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 opacity-0 group-hover:opacity-100"
+          className="p-3 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 group-focus-within:opacity-100 outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+          aria-label={`Delete ${product.id}`}
           title="Delete Product"
         >
           <Trash2 className="w-5 h-5" />
@@ -108,14 +109,16 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         <div className="flex flex-col gap-2">
           <button 
             onClick={handlePlus}
-            className="p-2.5 hover:bg-emerald-500/20 text-emerald-400 rounded-sm transition-all border border-white/5 hover:border-emerald-500/30 bg-white/5"
+            className="p-2.5 hover:bg-emerald-500/20 text-emerald-400 rounded-sm transition-all border border-white/5 hover:border-emerald-500/30 bg-white/5 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            aria-label={`Increase stock of ${product.id}`}
             title="Increase Stock"
           >
             <Plus className="w-4 h-4" />
           </button>
           <button 
             onClick={handleMinus}
-            className="p-2.5 hover:bg-red-500/20 text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 bg-white/5"
+            className="p-2.5 hover:bg-red-500/20 text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 bg-white/5 outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+            aria-label={`Decrease stock of ${product.id}`}
             title="Decrease Stock"
           >
             <Minus className="w-4 h-4" />
@@ -124,7 +127,8 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         <div className="flex items-baseline gap-1">
           <input 
             type="text"
-            className="bg-transparent text-7xl font-black text-white tracking-tighter w-28 outline-none border-none cursor-default focus:cursor-text"
+            className="bg-transparent text-7xl font-black text-white tracking-tighter w-28 outline-none border-none cursor-default focus:cursor-text focus-visible:ring-2 focus-visible:ring-sky-500 rounded-sm"
+            aria-label={`Direct edit stock of ${product.id}`}
             value={localStock}
             onChange={handleStockChange}
             onBlur={handleBlur}
@@ -141,7 +145,8 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
             <span className="text-white font-mono font-bold text-lg">₹</span>
             <input 
               type="text"
-              className="bg-transparent text-white font-mono font-bold text-lg w-20 outline-none border-none text-right cursor-default focus:cursor-text"
+              className="bg-transparent text-white font-mono font-bold text-lg w-20 outline-none border-none text-right cursor-default focus:cursor-text focus-visible:ring-2 focus-visible:ring-sky-500 rounded-sm"
+              aria-label={`Direct edit price of ${product.id}`}
               value={localPrice}
               onChange={e => setLocalPrice(e.target.value)}
               onBlur={handlePriceBlur}
