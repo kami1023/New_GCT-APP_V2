@@ -1,0 +1,3 @@
+## 2025-08-10 - Declarative State vs. Imperative DOM for Interactive Filtering
+**Learning:** Transitioning search/filter logic from direct imperative DOM queries to declarative React state solves state synchronization problems and opens up opportunities for micro-interactions (such as 'No results' empty states with clear actions and keyboard-friendly focus redirection). It prevents flickering when data is loading and keeps the interface highly responsive.
+**Action:** Always refactor imperative DOM manipulation to declarative state in React apps, using `useMemo` for filtering and `useRef` to programmatically redirect focus to trigger controls when actions complete.
