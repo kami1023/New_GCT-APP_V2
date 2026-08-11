@@ -1,0 +1,3 @@
+## 2025-10-24 - [Keyboard Discoverability of Hover Actions]
+**Learning:** Actions hidden behind hover effects (such as the "Delete Product" icon button on card components) are completely inaccessible to keyboard-only users unless they are also revealed when any nested interactive child of the card receives focus (using CSS features like Tailwind's `group-focus-within`).
+**Action:** When creating hover-triggered actions inside list items, cards, or panels, always ensure they are styled to be visible on focus-within (e.g. `group-focus-within:opacity-100` or `focus-within:opacity-100`) and have clear `focus-visible` outline or ring styling.
