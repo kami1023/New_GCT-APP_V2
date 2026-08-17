@@ -67,9 +67,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         {!isInline && !isPopover && (
           <button 
             onClick={onCancel}
+            aria-label="Close dialog"
             className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         )}
 
@@ -81,7 +82,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             variant === 'warning' ? "bg-amber-500/20 border-amber-500/30 text-amber-400" :
             "bg-sky-500/20 border-sky-500/30 text-sky-400"
           )}>
-            <AlertTriangle className={isInline || isPopover ? "w-5 h-5" : "w-8 h-8"} />
+            <AlertTriangle className={isInline || isPopover ? "w-5 h-5" : "w-8 h-8"} aria-hidden="true" />
           </div>
 
           <h3 className={cn(
