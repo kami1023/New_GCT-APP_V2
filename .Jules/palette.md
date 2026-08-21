@@ -1,0 +1,3 @@
+# Palette Journal
+
+## Critical Learnings
