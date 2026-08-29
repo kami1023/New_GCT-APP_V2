@@ -82,8 +82,9 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         </div>
         <button 
           onClick={handleDeleteClick}
-          className="p-3 hover:bg-red-500/20 text-zinc-700 hover:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 opacity-0 group-hover:opacity-100"
-          title="Delete Product"
+          className="p-3 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 focus:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+          aria-label={`Delete ${product.name}`}
+          title={`Delete ${product.name}`}
         >
           <Trash2 className="w-5 h-5" />
         </button>
