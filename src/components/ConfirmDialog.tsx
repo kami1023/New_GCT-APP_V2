@@ -67,6 +67,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         {!isInline && !isPopover && (
           <button 
             onClick={onCancel}
+            aria-label="Close dialog"
             className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
