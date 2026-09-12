@@ -1,0 +1,3 @@
+## 2025-03-08 - Accessible Card Actions & Contextual Dialog Semantics
+**Learning:** Icon-only buttons on dark card backgrounds (e.g. Delete, Plus, Minus) need explicit contextual ARIA labels (including product/item name) and visible focus states (`focus-visible:opacity-100 group-focus-within:opacity-100`) so keyboard and screen-reader users can locate and identify them.
+**Action:** Always include item context in `aria-label` for list/grid items, ensure text/icon contrast on dark backgrounds (`text-zinc-400` vs `text-zinc-700`), and pair custom dialog panels with `role="dialog"`, `aria-modal="true"`, and `aria-labelledby`.
