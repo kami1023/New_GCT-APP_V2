@@ -82,8 +82,9 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         </div>
         <button 
           onClick={handleDeleteClick}
-          className="p-3 hover:bg-red-500/20 text-zinc-700 hover:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 opacity-0 group-hover:opacity-100"
-          title="Delete Product"
+          className="p-3 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+          title={`Delete ${product.name}`}
+          aria-label={`Delete product ${product.name}`}
         >
           <Trash2 className="w-5 h-5" />
         </button>
@@ -108,15 +109,17 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         <div className="flex flex-col gap-2">
           <button 
             onClick={handlePlus}
-            className="p-2.5 hover:bg-emerald-500/20 text-emerald-400 rounded-sm transition-all border border-white/5 hover:border-emerald-500/30 bg-white/5"
-            title="Increase Stock"
+            className="p-2.5 hover:bg-emerald-500/20 text-emerald-400 rounded-sm transition-all border border-white/5 hover:border-emerald-500/30 bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            title={`Increase stock for ${product.name}`}
+            aria-label={`Increase stock for ${product.name}`}
           >
             <Plus className="w-4 h-4" />
           </button>
           <button 
             onClick={handleMinus}
-            className="p-2.5 hover:bg-red-500/20 text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 bg-white/5"
-            title="Decrease Stock"
+            className="p-2.5 hover:bg-red-500/20 text-red-400 rounded-sm transition-all border border-white/5 hover:border-red-500/30 bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+            title={`Decrease stock for ${product.name}`}
+            aria-label={`Decrease stock for ${product.name}`}
           >
             <Minus className="w-4 h-4" />
           </button>
@@ -124,11 +127,12 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
         <div className="flex items-baseline gap-1">
           <input 
             type="text"
-            className="bg-transparent text-7xl font-black text-white tracking-tighter w-28 outline-none border-none cursor-default focus:cursor-text"
+            className="bg-transparent text-7xl font-black text-white tracking-tighter w-28 outline-none border-none cursor-default focus:cursor-text focus-visible:ring-2 focus-visible:ring-sky-500 rounded-sm"
             value={localStock}
             onChange={handleStockChange}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
+            aria-label={`Stock quantity for ${product.name}`}
           />
           <span className="text-zinc-500 text-[8px] font-black uppercase tracking-[0.2em] -ml-2">Units</span>
         </div>
@@ -141,11 +145,12 @@ export const InventoryCard: React.FC<InventoryCardProps> = ({ product, onUpdateS
             <span className="text-white font-mono font-bold text-lg">₹</span>
             <input 
               type="text"
-              className="bg-transparent text-white font-mono font-bold text-lg w-20 outline-none border-none text-right cursor-default focus:cursor-text"
+              className="bg-transparent text-white font-mono font-bold text-lg w-20 outline-none border-none text-right cursor-default focus:cursor-text focus-visible:ring-2 focus-visible:ring-sky-500 rounded-sm"
               value={localPrice}
               onChange={e => setLocalPrice(e.target.value)}
               onBlur={handlePriceBlur}
               onKeyDown={handleKeyDown}
+              aria-label={`Unit price for ${product.name}`}
             />
           </div>
         </div>
