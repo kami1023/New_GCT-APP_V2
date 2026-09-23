@@ -68,6 +68,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <button 
             onClick={onCancel}
             className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors"
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>
