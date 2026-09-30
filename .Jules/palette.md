@@ -1,0 +1,3 @@
+## 2025-05-18 - Keyboard Discoverability for Hover Actions
+**Learning:** Actions revealed only on hover (like delete buttons on card components) are invisible and inaccessible to keyboard users unless explicitly styled for focus states (`focus-visible:opacity-100 group-focus-within:opacity-100`). Additionally, icon buttons on dark backgrounds require sufficient color contrast (e.g. `text-zinc-400` instead of `text-zinc-700`) to be legible.
+**Action:** Always combine hover reveal styles with focus reveal classes and descriptive ARIA labels targeting item names (e.g. `aria-label={`Delete ${product.name}`}`).
