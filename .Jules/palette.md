@@ -1,0 +1,3 @@
+## 2025-05-18 - Hover Actions and Screen Reader Accessibility in Dark Glassmorphism Cards
+**Learning:** Icon-only action buttons hidden behind hover (e.g., delete buttons on cards) are inaccessible to keyboard users unless explicitly paired with `group-focus-within:opacity-100` and `focus-visible:opacity-100`. Dark background interfaces require sufficient icon color contrast (`text-zinc-400` vs `text-zinc-700`) and explicit `aria-label`s containing product names to give context to screen readers.
+**Action:** Always combine `group-hover`, `group-focus-within`, and `focus-visible` on contextual card action overlays, and provide descriptive `aria-label`s specifying the target object name.
