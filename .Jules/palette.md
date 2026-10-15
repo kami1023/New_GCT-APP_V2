@@ -1,0 +1,3 @@
+## 2025-05-20 - Hover-Revealed Card Actions and Accessible Contrast
+**Learning:** Actions revealed only on hover in card interfaces (e.g., delete buttons) remain invisible to keyboard users during tab navigation if they lack focus-visible reveal state (`focus-visible:opacity-100 group-focus-within:opacity-100`). Additionally, icon-only action buttons require descriptive `aria-label` fields with item context rather than generic titles.
+**Action:** Always pair `group-hover:opacity-100` with `focus-visible:opacity-100 group-focus-within:opacity-100` and include descriptive `aria-label` attributes for icon-only card actions.
