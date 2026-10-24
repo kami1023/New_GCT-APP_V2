@@ -1,0 +1,3 @@
+## 2025-02-24 - Context-Aware ARIA Labels and Focus Visibility on Inventory Cards
+**Learning:** Icon-only action buttons hidden with `opacity-0 group-hover:opacity-100` are invisible and undiscoverable to keyboard navigation users. Adding `group-focus-within:opacity-100 focus-visible:opacity-100` alongside product-specific `aria-label` attributes ensures full accessibility without breaking hover-triggered UI aesthetics.
+**Action:** When working on card elements with conditional hover action buttons, always pair hover rules with `group-focus-within:opacity-100` / `focus-visible:opacity-100` and explicit `aria-label`s.
