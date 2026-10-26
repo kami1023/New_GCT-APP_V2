@@ -1,0 +1,3 @@
+## 2025-05-18 - Hover-Only Actions and Input Accessibility
+**Learning:** Actions revealed only on hover (e.g. Delete buttons in inventory cards) are inaccessible to keyboard users unless explicitly made visible on focus (`focus:opacity-100 focus-visible:opacity-100`). Furthermore, icon-only buttons and inline editable inputs require descriptive `aria-label` attributes targeting specific items (e.g., `product.name`) to provide essential context for screen reader users.
+**Action:** Always include focus visibility classes (`focus:opacity-100 focus-visible:opacity-100`) and descriptive `aria-label`s when implementing card action buttons and inline text inputs.
