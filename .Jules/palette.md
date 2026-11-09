@@ -1,0 +1,3 @@
+## 2025-05-18 - Inventory Card Interactive Actions Accessibility
+**Learning:** Actions hidden exclusively behind card hover states (like deletion or quick settings) are completely inaccessible to keyboard-only and screen reader users if they lack focus-visible visibility and descriptive ARIA labels. In dark theme interfaces, default zinc text colors like `text-zinc-700` fail color contrast against dark surfaces.
+**Action:** Always combine `focus-visible:opacity-100` with clear focus rings alongside `group-hover:opacity-100`, use `product.name` in `aria-label` for screen reader clarity, and ensure contrast is at least `text-zinc-400`.
